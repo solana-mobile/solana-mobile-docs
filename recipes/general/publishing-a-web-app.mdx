@@ -1,35 +1,52 @@
 ---
 title: "Publishing a Web App on the dApp Store"
 sidebarTitle: "Publishing a Web App"
-description: "Learn how to publish a web app on the Solana dApp Store by wrapping it as a Progressive Web App (PWA) inside an Android APK."
+description: "Learn how to publish a web app on the Solana dApp Store by wrapping it in an Android WebView shell."
 ---
 
 import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
 
-Web apps can be published on the dApp Store by wrapping them as a Progressive Web App (PWA) inside an Android APK.
+Web apps can be published on the dApp Store by wrapping them in an Android WebView shell and submitting the resulting APK. The [`solana-mobile webshell`](/cli/webshell) command generates that Android project and builds a signed release APK from it.
+
+<Note>
+  A WebView shell needs no Digital Asset Links setup, and it keeps Mobile Wallet
+  Adapter working: browsers are rolling out [Local Network
+  Access](https://developer.chrome.com/blog/local-network-access) restrictions
+  that break wallet connections for web apps, including Trusted Web Activity
+  wrappers such as Bubblewrap APKs. The shell handles wallet intents natively
+  instead.
+</Note>
 
 <Steps>
-  <Step title="Create a PWA">
-    Add a [web manifest](https://developer.mozilla.org/en-US/docs/Web/Manifest)
-    to your web app to make it a Progressive Web App.
+  <Step title="Host your web app">
+    Make sure your web app is reachable at a public URL. If it has a [web
+    manifest](https://developer.mozilla.org/en-US/docs/Web/Manifest), the CLI
+    seeds the app name, icons, and start URL from it.
+  </Step>
+  <Step title="Update Mobile Wallet Adapter">
+    Update `@solana-mobile/wallet-standard-mobile` to **v0.5.1 or later** so
+    your app detects the shell and skips the browser permission flow. See [Local
+    Network Access](/recipes/mobile-wallet-adapter/local-network-access).
   </Step>
   <Step title="Wrap into an Android APK">
-    Use a tool like Bubblewrap CLI to wrap your PWA in a [Trusted Web Activity
-    (TWA)](/dapp-store/build-and-sign-an-apk) and produce a signed Android APK.
+    Run [`webshell init`](/cli/webshell#webshell-init) to generate the project
+    and [`webshell build`](/cli/webshell#webshell-build) to produce a signed
+    release APK.
   </Step>
   <Step title="Publish to the dApp Store">
     Submit your signed APK through the standard dApp Store publishing process.
   </Step>
 </Steps>
 
-See our guide to wrapping a PWA with Bubblewrap:
+See our guide to wrapping a web app with the Solana Mobile CLI:
 
 <Card
-  title="Convert a PWA to an APK"
+  title="Wrap a Web App as an APK"
   icon="browser"
   href="/dapp-store/build-and-sign-an-apk"
 >
-  Follow the full step-by-step guide in the PWA tab of the APK building guide.
+  Follow the full step-by-step guide in the Web App tab of the APK building
+  guide.
 </Card>
 
 <FooterDisclaimer />

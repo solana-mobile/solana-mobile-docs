@@ -1,6 +1,6 @@
 ---
 title: "Build and Sign an APK"
-description: "The Solana dApp Store requires a signed APK file for submission. This guide covers how to build one for Expo, native Android, and PWA projects."
+description: "The Solana dApp Store requires a signed APK file for submission. This guide covers how to build one for Expo, native Android, and web app projects."
 ---
 
 import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
@@ -146,22 +146,28 @@ apksigner verify --print-certs app-release.apk
 ```
 
 </Tab>
-<Tab title="PWA" icon="globe">
+<Tab title="Web App" icon="globe">
 
-[Progressive Web Apps (PWAs)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps) can be published on the dApp Store by wrapping them in a [Trusted Web Activity (TWA)](https://developer.chrome.com/docs/android/trusted-web-activity). TWAs use Chrome to render your web app in a full-screen, native-like experience.
+Any web app or website can be published on the dApp Store by wrapping it in an Android WebView shell. The [`solana-mobile webshell`](/cli/webshell) command generates that Android project for you and builds a signed release APK from it.
 
-<Tip>
-  The Solana Mobile CLI can wrap a web app in a WebView shell instead, which
-  skips the Digital Asset Links setup a TWA requires. See
-  [`webshell`](/cli/webshell).
-</Tip>
+<Note>
+  The generated app is a WebView shell, not a [Trusted Web Activity
+  (TWA)](https://developer.chrome.com/docs/android/trusted-web-activity), so it
+  needs no Digital Asset Links setup. Browsers are rolling out [Local Network
+  Access](https://developer.chrome.com/blog/local-network-access) restrictions
+  that break Mobile Wallet Adapter connections for web apps, including TWA-based
+  wrappers such as Bubblewrap APKs. The shell handles wallet intents natively,
+  so those flows keep working.
+</Note>
 
-### Prerequisite
+### Prerequisites
 
-A PWA [web manifest](https://developer.mozilla.org/en-US/docs/Web/Manifest) hosted at `https://your-pwa-url.com/manifest.json`.
+- Your web app is reachable at a public URL.
+- A JDK 17 or newer and the Android SDK are installed. Run [`solana-mobile doctor`](/cli/doctor) to check.
+- Your web app uses `@solana-mobile/wallet-standard-mobile` **v0.5.1 or later**, which detects the shell and skips the browser permission flow. See [Local Network Access](/recipes/mobile-wallet-adapter/local-network-access).
 
 <Accordion title="Template: Web Manifest">
-At minimum, a manifest file includes the app's name, icons, and start URL:
+A [web manifest](https://developer.mozilla.org/en-US/docs/Web/Manifest) is optional, but when one is available the CLI seeds the app name, icons, and start URL from it. At minimum, a manifest file includes the app's name, icons, and start URL:
 
 ```json manifest.json
 {
@@ -191,112 +197,75 @@ For more information, view the [web manifest documentation](https://web.dev/arti
 
 </Accordion>
 
-## 1. Install Bubblewrap CLI
+## 1. Generate the Android project
 
-[Bubblewrap CLI](https://github.com/GoogleChromeLabs/bubblewrap/tree/main/packages/cli) converts your PWA into an Android app using TWA.
-
-```bash
-npm i -g @bubblewrap/cli
-```
-
-## 2. Initialize the project
-
-In a new directory, run `init` with the URL to your web manifest:
+Point `init` at your site URL:
 
 ```bash
-bubblewrap init --manifest https://your-pwa-url.com/manifest.json
+npx solana-mobile@latest webshell init my-app --url https://your-app.com
 ```
 
-This will prompt you to configure the domain, display mode, splash screen, icons, and signing keystore.
-
-- If it asks to install additional tooling (e.g. Android SDK, JDK), allow it.
-
-<Warning>
-  The `init` command will generate an **Android Keystore**. Keep the keystore
-  file and password secure — losing them means you cannot update your app.
-</Warning>
-
-## 3. Add supported languages
-
-Before building, specify the languages your app supports. By default, Bubblewrap incorrectly declares support for all locales.
-
-In the generated Android project, edit `build.gradle`:
-
-```groovy build.gradle
-android {
-    defaultConfig {
-        ...
-        resConfigs "en" // Add any locales your app supports
-    }
-}
-```
-
-## 4. Build the APK
+If your site has a web manifest, point at that instead and the CLI fills in the app name, icons, and start URL for you:
 
 ```bash
-bubblewrap build
+npx solana-mobile@latest webshell init my-app --manifest https://your-app.com/manifest.json
 ```
 
-This outputs a signed release APK.
-
-## 5. Publish Digital Asset Links
-
-[Digital Asset Links (DAL)](https://developers.google.com/digital-asset-links/v1/getting-started) establish a connection between your website and the Android app. Without this, the app will show Chrome browser UI instead of a full-screen experience.
-
-<Steps>
-<Step>
-Generate the SHA256 fingerprint from your keystore:
-
-```bash
-keytool -list -v -keystore android.keystore
-```
-
-</Step>
-<Step>
-Add the fingerprint to your TWA manifest:
-
-```bash
-bubblewrap fingerprint add <SHA256_fingerprint>
-```
-
-</Step>
-<Step>
-Generate the `assetlinks.json` file:
-
-```bash
-bubblewrap fingerprint generateAssetLinks
-```
-
-</Step>
-<Step>
-Publish the generated `assetlinks.json` at:
-
-`https://your-domain.com/.well-known/assetlinks.json`
-
-</Step>
-</Steps>
-
-## 6. Test the APK
-
-Install and test on a device or emulator:
-
-```bash
-bubblewrap install app-release-signed.apk
-```
+Either form prompts for whatever is still missing: application id, app name, version code and name, and the signing keystore. See [`webshell init`](/cli/webshell#webshell-init) for the full list of flags.
 
 <Tip>
-  If you see the browser navigation bar at the top of the app, your Digital
-  Asset Links may not be configured correctly. Double-check step 5.
+  Already using Bubblewrap? Pass its `twa-manifest.json` to `--manifest` and the
+  CLI carries over the application id, versions, and signing key, so your
+  existing app updates keep working.
 </Tip>
 
-### Updating your TWA
+<Warning>
+  Pass `--keystore-path` to sign with the key you created above. When that path
+  does not exist yet, `init` creates a keystore there instead. Keep the keystore
+  file and its passwords secure — losing them means you cannot update your app.
+</Warning>
 
-To release a new version, edit `twa-manifest.json` and run:
+## 2. Build the APK
 
 ```bash
-bubblewrap update --manifest=./path/to/twa-manifest.json
-bubblewrap build
+npx solana-mobile@latest webshell build my-app
 ```
+
+The build prompts for the keystore password. Set `SOLANA_MOBILE_KEYSTORE_PASSWORD` (and `SOLANA_MOBILE_KEY_PASSWORD`, if the key uses a different password) to skip the prompts in CI:
+
+```bash
+export SOLANA_MOBILE_KEYSTORE_PASSWORD='<keystore-password>'
+export SOLANA_MOBILE_KEY_PASSWORD='<key-password>'
+npx solana-mobile@latest webshell build my-app
+```
+
+The signed APK lands at `my-app/app/build/outputs/apk/release/app-release.apk`.
+
+## 3. Verify the APK
+
+Confirm your APK is properly signed:
+
+```bash
+apksigner verify --print-certs my-app/app/build/outputs/apk/release/app-release.apk
+```
+
+## 4. Test the APK
+
+Install it on a connected device or emulator and check that your wallet flows work inside the shell:
+
+```bash
+npx solana-mobile@latest device install my-app/app/build/outputs/apk/release/app-release.apk
+```
+
+### Updating your app
+
+Every dApp Store update needs a higher `versionCode`. Bump `SOLANA_MOBILE_VERSION_CODE` and `SOLANA_MOBILE_VERSION_NAME` in the generated project's `gradle.properties`, then build again:
+
+```bash
+npx solana-mobile@latest webshell build my-app
+```
+
+Because the shell loads your live site, changes you ship to the web app itself reach users without a new APK.
 
 </Tab>
 </Tabs>
