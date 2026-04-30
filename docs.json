@@ -387,7 +387,7 @@
     },
     {
       "source": "/dapp-publishing/publishing-a-pwa",
-      "destination": "/dapp-store/publishing-a-web-app"
+      "destination": "/recipes/general/publishing-a-web-app"
     },
     {
       "source": "/dapp-publishing/publishing-from-google-play",
@@ -424,6 +424,10 @@
     {
       "source": "/dapp-publishing/tou",
       "destination": "/dapp-store/tou"
+    },
+    {
+      "source": "/dapp-store/publishing-a-web-app",
+      "destination": "/recipes/general/publishing-a-web-app"
     },
     {
       "source": "/developers/community",
