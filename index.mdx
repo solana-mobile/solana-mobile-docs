@@ -115,7 +115,7 @@ import { HeroCard } from "/snippets/card.mdx";
   </Card>
 </CardGroup>
 </div>
-<div className="not-prose mt-12 flex flex-col gap-4 border-t border-gray-200 pt-6 dark:border-gray-800 sm:flex-row sm:items-center">
+<div className="not-prose mt-12 border-t border-gray-200 pt-8 dark:border-gray-800">
   <img
     noZoom
     alt="Solana Mobile"
@@ -128,19 +128,82 @@ import { HeroCard } from "/snippets/card.mdx";
     className="hidden h-7 w-auto dark:block"
     src="/logo/dark.svg"
   />
-  <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium">
-    <a
-      className="text-gray-500 transition-colors no-underline hover:text-primary-light dark:text-gray-400 dark:hover:text-primary-dark"
-      href="https://legal.solanamobile.com/tos-homepage-web"
-    >
-      Terms of Service
-    </a>
-    <a
-      className="text-gray-500 transition-colors no-underline hover:text-primary-light dark:text-gray-400 dark:hover:text-primary-dark"
-      href="https://legal.solanamobile.com/privacy-policy-homepage-web"
-    >
-      Privacy Policy
-    </a>
+  <div className="mt-6 grid grid-cols-2 gap-8 sm:grid-cols-3">
+    <div>
+      <h3 className="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-200">Community</h3>
+      <div className="flex flex-col gap-y-2 text-sm font-medium">
+        <a
+          className="text-gray-500 transition-colors no-underline hover:text-primary-light dark:text-gray-400 dark:hover:text-primary-dark"
+          href="https://solana.stackexchange.com/"
+        >
+          Stack Exchange
+        </a>
+        <a
+          className="text-gray-500 transition-colors no-underline hover:text-primary-light dark:text-gray-400 dark:hover:text-primary-dark"
+          href="https://discord.gg/solanamobile"
+        >
+          Discord
+        </a>
+        <a
+          className="text-gray-500 transition-colors no-underline hover:text-primary-light dark:text-gray-400 dark:hover:text-primary-dark"
+          href="https://twitter.com/solanamobile"
+        >
+          Twitter
+        </a>
+      </div>
+    </div>
+    <div>
+      <h3 className="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-200">More</h3>
+      <div className="flex flex-col gap-y-2 text-sm font-medium">
+        <a
+          className="text-gray-500 transition-colors no-underline hover:text-primary-light dark:text-gray-400 dark:hover:text-primary-dark"
+          href="https://github.com/solana-mobile"
+        >
+          GitHub
+        </a>
+        <a
+          className="text-gray-500 transition-colors no-underline hover:text-primary-light dark:text-gray-400 dark:hover:text-primary-dark"
+          href="/seeker/release-notes"
+        >
+          Seeker Release Notes
+        </a>
+      </div>
+    </div>
+    <div>
+      <h3 className="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-200">Legal</h3>
+      <div className="flex flex-col gap-y-2 text-sm font-medium">
+        <a
+          className="text-gray-500 transition-colors no-underline hover:text-primary-light dark:text-gray-400 dark:hover:text-primary-dark"
+          href="https://legal.solanamobile.com/tos-homepage-web"
+        >
+          Terms of Service
+        </a>
+        <a
+          className="text-gray-500 transition-colors no-underline hover:text-primary-light dark:text-gray-400 dark:hover:text-primary-dark"
+          href="https://legal.solanamobile.com/privacy-policy-homepage-web"
+        >
+          Privacy Policy
+        </a>
+        <a
+          className="text-gray-500 transition-colors no-underline hover:text-primary-light dark:text-gray-400 dark:hover:text-primary-dark"
+          href="https://solanamobile.com/developer-agreement-web"
+        >
+          Developer Agreement
+        </a>
+        <a
+          className="text-gray-500 transition-colors no-underline hover:text-primary-light dark:text-gray-400 dark:hover:text-primary-dark"
+          href="https://solanamobile.com/dapp-store-tos"
+        >
+          dApp Store Terms of Use
+        </a>
+        <a
+          className="text-gray-500 transition-colors no-underline hover:text-primary-light dark:text-gray-400 dark:hover:text-primary-dark"
+          href="https://legal.solanamobile.com/en/cookie-policy-web"
+        >
+          Cookie Policy
+        </a>
+      </div>
+    </div>
   </div>
 </div>
 </div>
