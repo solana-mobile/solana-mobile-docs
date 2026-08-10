@@ -3,6 +3,8 @@ title: "Publishing subsequent dApp releases"
 description: "When you're ready to publish additional releases of your dApp, follow these steps."
 ---
 
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
 ## 1. Create an updated APK file
 
 Each release of your dApp will require an updated release APK file, signed with the same signing key you used for your initial release.
@@ -43,3 +45,5 @@ Submit the update to the Solana dApp Publisher Portal, where the new release wil
 ```bash
 npx dapp-store publish update -k <path_to_your_keypair> --requestor-is-authorized --complies-with-solana-dapp-store-policies
 ```
+
+<FooterDisclaimer />

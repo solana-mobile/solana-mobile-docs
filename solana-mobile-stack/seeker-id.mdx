@@ -5,6 +5,8 @@ description: "Seeker ID is an onchain identity for Seeker owners, consisting of 
 toc: false
 ---
 
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
 Seeker ID is the onchain identity for [Seeker](/solana-mobile-stack/seeker) owners. It consists of two components — a **Seeker Genesis Token** and a **.skr domain** — held in the user's [Seed Vault Wallet](/solana-mobile-stack/seed-vault).
 
 ## Seeker Genesis Token
@@ -72,3 +74,5 @@ The Seeker Genesis Token builds on the concept introduced with the original Saga
 | **Token standard**  | Token-2022 (Token Extensions)                      | Metaplex Token Standard       |
 | **Transferability** | Transferable within user's own Seed Vault accounts | Soulbound (non-transferable)  |
 | **Verification**    | Token-2022 account queries                         | DAS API (Metaplex collection) |
+
+<FooterDisclaimer />

@@ -4,6 +4,8 @@ description: "To interface with the Solana network, a client needs to construct 
 sidebarTitle: "RPC Client: Usage guide"
 ---
 
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
 This guide will teach you how to use the `SolanaRpcClient` and send these RPC requests.
 
 ## Add dependencies
@@ -90,3 +92,5 @@ These examples are just some of the methods supported by `SolanaRpcClient`. Here
 - Read the following guide to learn how to build Solana program instructions and transactions.
 - For a complete reference of the RPC methods supported, view the `SolanaRpcClient` [source code](https://github.com/solana-mobile/rpc-core/blob/main/solanaclient/src/commonMain/kotlin/com/solana/rpc/SolanaRpcClient.kt) and [unit tests](https://github.com/solana-mobile/rpc-core/blob/main/solanaclient/src/commonTest/kotlin/com/solana/rpc/RpcClientTests.kt).
 - Read the [_Building JSON RPC requests_ deep dive](/android-native/building-json-rpc-requests) to learn how to create requests for RPC methods that aren't immediately supported by `SolanaRpcClient`.
+
+<FooterDisclaimer />

@@ -4,6 +4,8 @@ sidebarTitle: ".skr Domain"
 description: "A human-readable .skr domain that maps to a Solana wallet address."
 ---
 
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
 Every [Seeker](/solana-mobile-stack/seeker) owner receives a `.skr` domain — a human-readable name that maps to their Solana wallet address. Like the [Seeker Genesis Token](/solana-mobile-stack/seeker-genesis-token), a `.skr` domain is only minted once per device and can be transferred between a user's own wallet accounts within the [Seed Vault Wallet](/solana-mobile-stack/seed-vault).
 
 Instead of sharing a long base58 wallet address, a user can share something like `alice.skr`. This makes it easier to send and receive tokens, display readable names in your app's UI, and reference users across apps.
@@ -23,3 +25,5 @@ SKR domains are built on [AllDomains](https://alldomains.id/) and support bidire
   A sample app demonstrating bidirectional domain lookup with AllDomains
   integration.
 </Card>
+
+<FooterDisclaimer />

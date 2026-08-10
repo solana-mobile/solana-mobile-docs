@@ -3,6 +3,8 @@ title: Wallet Signing on iOS
 description: "This article aims to address questions around the state of **wallet signing** and **key custody** on iOS."
 ---
 
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
 That is -- How can iOS mobile dApps enable native transaction signing?
 
 We commonly see the same questions and ideas being raised across different social medias and platforms, so one goal of this article is to share all the insights from the Solana Mobile team's research into different iOS solutions.
@@ -271,3 +273,5 @@ As a wallet developer, we urge you to implement a Safari Web Extension alongside
 **Footnotes**
 
 1. Even when a dApp has the master list of wallet universal links, iOS doesn't provide a reliable way to _narrow_ down the list to only installed wallet apps. There exists [`canOpenUrl`](https://developer.apple.com/documentation/uikit/uiapplication/1622952-canopenurl#return_value), but to use it successfully you must declare the app's supported URL schemes within your Info.plist in advance. This means, if a new wallet is added to the global master list, the dApp can't use `canOpenUrl` to check for its existence until it builds and publishes a new version of the app with the new schemes declared!
+
+<FooterDisclaimer />

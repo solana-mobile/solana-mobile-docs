@@ -2,6 +2,8 @@
 title: "Migrating from `clientlib` 1.x to 2.0"
 ---
 
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
 ## Update
 
 To update to clientlib 2.0, simply add the latest dependency in your gradle file:
@@ -59,3 +61,5 @@ AuthorizedAccount {
 ### `MobileWalletAdapterClient.getCapabilities`
 
 The feature flags `supportsSignAndSendTransactons` and `supportsCloneAuthorization` haave been removed from the `get_capabilities` request in MWA 2.0. These have been replaced by the feature IDs exposed by the feature extension API. The result object returned by `MobileWalletAdapterClient.getCapabilities` has been updated to conform to the new request specification. A new `suportedOptionalFeatures` attribute has been added to `MobileWalletAdapterClient.GetCapabilitiesResult` that will contian a list of feature identifieer strings indicating which optional feaures the wallet supports.
+
+<FooterDisclaimer />

@@ -5,6 +5,8 @@ description: "Seed Vault is a hardware-level secure key custody system built int
 toc: false
 ---
 
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
 The Seed Vault is a system service providing secure key custody to Wallet apps. By integrating with secure execution environments available on mobile devices (such as secure operating modes of the processor and/or secure auxiliary coprocessors), Seed Vault helps to keep your secrets safe, by moving them to the highest privileged environment available on the device. Your keys, seeds, and secrets never leave the secure execution environment, while UI components built into Android handle interaction with the user to provide a secure transaction signing experience to users.
 
 ## How it works
@@ -28,3 +30,5 @@ Most developers interact with Seed Vault indirectly through the [Mobile Wallet A
   devices. If you're building a dApp, use the [MWA
   SDK](/get-started/mobile-wallet-adapter) instead.
 </Info>
+
+<FooterDisclaimer />

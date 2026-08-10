@@ -4,6 +4,8 @@ description: "Set up the MobileWalletAdapter client to connect to wallets from y
 sidebarTitle: "Setup"
 ---
 
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
 ## Instantiate the MobileWalletAdapter client
 
 The `MobileWalletAdapter` object provides methods to connect to wallets and issue MWA requests.
@@ -86,3 +88,5 @@ walletAdapter.authToken = previouslyStoredAuthToken
   See usage examples for connect, signMessage, signIn, and
   signAndSendTransaction.
 </Card>
+
+<FooterDisclaimer />

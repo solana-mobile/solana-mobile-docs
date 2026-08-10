@@ -4,6 +4,8 @@ description: "Portal-backed CLI for publishing dApp versions to the Solana dApp 
 sidebarTitle: "Publishing CLI"
 ---
 
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
 The `dapp-store` CLI publishes new app versions to the Solana dApp Store through the
 [Publisher Portal](https://publish.solanamobile.com). Point it at an APK (local file or URL),
 and the portal handles the rest — matching the package name to your existing app, creating the
@@ -72,3 +74,5 @@ dapp-store \
   --keypair ./path/to/keypair.json \
   --whats-new "Release v1.2.0"
 ```
+
+<FooterDisclaimer />

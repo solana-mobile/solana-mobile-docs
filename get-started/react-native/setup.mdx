@@ -4,6 +4,8 @@ description: "Set up MobileWalletProvider and the useMobileWallet hook in your R
 sidebarTitle: "Setup"
 ---
 
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
 ## MobileWalletProvider
 
 Wrap your app's root component with `MobileWalletProvider` from `@wallet-ui/react-native-web3js`. This provider manages the wallet connection state and exposes the `useMobileWallet` hook to all child components.
@@ -78,3 +80,5 @@ function MyComponent() {
 >
   See usage examples for all useMobileWallet hook methods.
 </Card>
+
+<FooterDisclaimer />
