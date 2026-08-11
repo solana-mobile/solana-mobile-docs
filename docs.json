@@ -206,6 +206,7 @@
           {
             "group": "Solana Development",
             "pages": [
+              "recipes/solana-development/skr-staking",
               "recipes/solana-development/anchor-integration",
               "recipes/solana-development/using-anchor-programs"
             ]
