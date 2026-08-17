@@ -256,6 +256,16 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "Security",
+        "icon": "shield-halved",
+        "groups": [
+          {
+            "group": "Security",
+            "pages": ["security"]
+          }
+        ]
       }
     ]
   },
