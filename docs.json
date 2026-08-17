@@ -263,7 +263,7 @@
         "groups": [
           {
             "group": "Security",
-            "pages": ["security"]
+            "pages": ["security", "security/bug-bounty", "security/grants"]
           }
         ]
       }
