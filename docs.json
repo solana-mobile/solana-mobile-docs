@@ -200,7 +200,8 @@
             "pages": [
               "recipes/mobile-wallet-adapter/caching-wallet-authorization",
               "recipes/mobile-wallet-adapter/migrating-to-wallet-standard",
-              "recipes/mobile-wallet-adapter/local-network-access"
+              "recipes/mobile-wallet-adapter/local-network-access",
+              "recipes/mobile-wallet-adapter/wallet-signing-on-ios"
             ]
           },
           {
@@ -289,6 +290,10 @@
     }
   },
   "redirects": [
+    {
+      "source": "/blog/ios-wallet-signing",
+      "destination": "/recipes/mobile-wallet-adapter/wallet-signing-on-ios"
+    },
     {
       "source": "/dapp-publishing/agreement",
       "destination": "/dapp-store/agreement"
