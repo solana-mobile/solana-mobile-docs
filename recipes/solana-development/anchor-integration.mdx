@@ -1,305 +1,306 @@
 ---
 title: "Anchor Integration Guide"
-description: "This guide will show you how to integrate an Anchor Program into your React Native dApp, using the [Anchor Counter dApp](https://github.com/solana-mobile/tutorial-apps/tree/main/AnchorCounterDapp) as reference."
+description: "Connect an Anchor program to a mobile app using a generated client, starting from the expo-kit-anchor template."
+sidebarTitle: "Anchor Integration"
 ---
 
 import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
-
 import { Button } from "/snippets/button.mdx";
 
-<Button href="https://github.com/solana-mobile/tutorial-apps/tree/main/AnchorCounterDapp">
-  Example App Repo
+<Button href="https://github.com/solana-mobile/templates/tree/main/mobile/expo-kit-anchor">
+  expo-kit-anchor template
 </Button>
 
 ## What you will learn
 
-- How to import an Anchor Program into a React Native project
-- How to create an Anchor Wallet and Provider with Mobile Wallet Adapter
-- How to sign and submit transactions with an Anchor Program IDL
-- How to generate instructions with an Anchor Program IDL
+- How an Anchor program, its IDL, and a generated client fit together
+- How to read program accounts and send instructions from a mobile app
+- How to regenerate the client after changing your program
+- How to deploy your own program and point the app at it
 
 ## Prerequisites
 
-- [React Native setup](/get-started/react-native/setup) and [Anchor setup](https://book.anchor-lang.com/getting_started/installation.html)
-- Basic understanding of [Anchor Programs](https://book.anchor-lang.com/) and IDL.
-- An existing [deployed](https://book.anchor-lang.com/anchor_in_depth/milestone_project_tic-tac-toe.html#deployment) Anchor Program.
+- A working [Anchor toolchain](https://www.anchor-lang.com/docs/installation)
+- [Development setup](/get-started/development-setup) for running Android apps
+- Familiarity with Anchor programs, accounts, and PDAs
 
-## Installation
+## Create the project
 
-Add the Anchor library to your React Native Project:
+The `expo-kit-anchor` template ships an Expo app and an Anchor program in one project, already wired together.
 
-<Warning>
-**CAUTION**
+<Steps>
+<Step title="Generate the app">
 
-React Native apps should use Anchor v0.28.0 because later versions of the library have a polyfill issue on React Native.
-
-</Warning>
-
-<CodeGroup>
-```shell yarn
-yarn add @coral-xyz/anchor@0.28.0
+```bash
+npx solana-mobile@latest create anchor-demo
 ```
 
-```shell npm
-npm install @coral-xyz/anchor@0.28.0
+Select the **expo-kit-anchor** template when prompted.
+
+</Step>
+<Step title="Run it">
+
+```bash
+cd anchor-demo
+npm run android
 ```
 
-</CodeGroup>
+The app connects to a `hello_world` counter program already deployed on devnet. Connect a wallet, initialize a counter, and increment it before changing anything — that confirms your toolchain works end to end.
 
-## Create an Anchor Wallet with Mobile Wallet Adapter
+</Step>
+</Steps>
 
-<Tip>
-**TIP**
+## How the pieces fit together
 
-The Anchor Counter Program example app shows how to create an Anchor wallet that is integrated
-with a more complex state management framework.
+Everything after the program is generated:
 
-<Button href="https://github.com/solana-mobile/tutorial-apps/blob/main/AnchorCounterDapp/src/utils/useAnchorWallet.tsx#L23">View sample</Button>
-</Tip>
-
-To create an `AnchorWallet`, use Mobile Wallet Adapter `transact` to implement the required signing functions.
-
-A simple implementation:
-
-```tsx expandable
-import * as anchor from "@coral-xyz/anchor";
-import {
-  transact,
-  Web3MobileWallet,
-} from "@solana-mobile/mobile-wallet-adapter-protocol-web3js";
-
-const anchorWallet = useMemo(() => {
-  return {
-    signTransaction: async (transaction: Transaction) => {
-      return transact(async (wallet: Web3MobileWallet) => {
-        const authorizationResult = await wallet.authorize({
-              cluster: RPC_ENDPOINT,
-              identity: APP_IDENTITY,
-        }));
-
-        const signedTransactions = await wallet.signTransactions({
-          transactions: [transaction],
-        });
-        return signedTransactions[0];
-      });
-    },
-    signAllTransactions: async (transactions: Transaction[]) => {
-      return transact(async (wallet: Web3MobileWallet) => {
-        const authorizationResult = await wallet.authorize({
-              cluster: RPC_ENDPOINT,
-              identity: APP_IDENTITY,
-        }));
-
-        const signedTransactions = await wallet.signTransactions({
-          transactions: transactions,
-        });
-        return signedTransactions;
-      });
-    },
-    get publicKey() {
-      return userPubKey;
-    },
-  } as anchor.Wallet;
-}, []);
+```text
+anchor program  →  IDL  →  Codama  →  TypeScript client  →  app
 ```
 
-## Importing an Anchor Program in Typescript
+You write the program. Building it writes the IDL. Codama reads the IDL and generates a typed client. The app imports that client. When the program changes, you rebuild and regenerate, and the instructions and types the app uses always match what the program declares.
 
-### Generating an Anchor Program IDL
+<Info>
+  The IDL is the contract between the two sides. You never hand-write the client
+  — every account fetcher and instruction builder the app calls is generated
+  from it.
+</Info>
 
-If you have an Anchor project in your local workspace, build the program and generate the Typescript IDL with:
+## The Anchor program
 
-```shell
-anchor build
-```
+The program lives in `anchor/programs/hello_world/src/`. Its entrypoint declares the program address and the instructions:
 
-If the Anchor program is already deployed and you know its address, you can use the [Anchor CLI](https://book.anchor-lang.com/anchor_references/cli.html?highlight=idl#idl) to fetch it:
+```rust
+// lib.rs
+declare_id!("BneHHhN7nSXgjZytQWLsi1TRY7xMz83FxpkKgoCb1n2d");
 
-```shell
-anchor idl fetch GrAkKfEpTKQuVHG2Y97Y2FF4i7y7Q5AHLK94JBy7Y5yv
-```
+#[program]
+pub mod hello_world {
+    use super::*;
 
-### Instantiate your Anchor Program
+    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+        crate::instructions::initialize::handle_initialize(ctx)
+    }
 
-Once your IDL has been generated, you can import it and create an instance of your `Program` in Typescript.
-
-- Import your generated IDL file, in this case from `/target/types/basic_counter.ts`
-- Use the `anchorWallet` from the previous step to create an `AnchorProvider`.
-
-<Button href="https://github.com/solana-mobile/tutorial-apps/blob/main/AnchorCounterDapp/src/components/counter/counter-data-access.tsx#L15">
-  See example
-</Button>
-
-```tsx expandable
-import { BasicCounter as BasicCounterProgram } from "../../basic-counter/target/types/basic_counter";
-import { AnchorProvider, Program } from "@coral-xyz/anchor";
-
-const COUNTER_PROGRAM_ID = "ADraQ2ENAbVoVZhvH5SPxWPsF2hH5YmFcgx61TafHuwu";
-
-// Address of the devnet-deployed Counter Program
-const counterProgramId = useMemo(() => {
-  return new PublicKey(COUNTER_PROGRAM_ID);
-}, []);
-
-// Create an AnchorProvider with the anchorWallet.
-const provider = useMemo(() => {
-  if (!anchorWallet) {
-    return null;
-  }
-  return new AnchorProvider(connection, anchorWallet, {
-    preflightCommitment: "confirmed",
-    commitment: "processed",
-  });
-}, [anchorWallet, connection]);
-
-// Create an instance of your Program.
-const counterProgram = useMemo(() => {
-  if (!provider) {
-    return null;
-  }
-
-  return new Program<BasicCounterProgram>(
-    idl as BasicCounterProgram,
-    counterProgramId,
-    provider,
-  );
-}, [counterProgramId, provider]);
-```
-
-## Sign transactions manually with Mobile Wallet Adapter
-
-With an instantiated `Program`, you can:
-
-- Generate serialized program instructions.
-- Construct a `Transaction` with the generated instructions.
-- Manually sign the `Transaction` with Mobile Wallet Adapter.
-
-In the following example, we generate an `incrementInstruction` from the program then sign it within a Mobile Wallet Adapter
-session.
-
-```tsx expandable
-const {counterProgram, counterPDA} = useCounterProgram();
-
-const signIncrementTransaction = async () => {
-  return await transact(async (wallet: Web3MobileWallet) => {
-    const authorizationResult = wallet.authorize({
-      cluster: RPC_ENDPOINT,
-      identity: APP_IDENTITY,
-    }));
-
-    const latestBlockhash = await connection.getLatestBlockhash();
-
-    // Generate the increment ix from the Anchor program
-    const incrementInstruction = await counterProgram.methods
-        .increment(new anchor.BN(amount))
-        .accounts({
-          counter: counterPDA,
-        })
-        .instruction();
-
-    // Build a transaction containing the instruction
-    const incrementTransaction = new Transaction({
-      ...latestBlockhash,
-      feePayer: authorizationResult.publicKey,
-    }).add(incrementInstruction);
-
-    // Sign a transaction and receive
-    const signedTransactions = await wallet.signTransactions({
-      transactions: [incrementTransaction],
-    });
-
-    return signedTransactions[0];
-  });
+    pub fn increment(ctx: Context<Increment>) -> Result<()> {
+        crate::instructions::increment::handle_increment(ctx)
+    }
 }
 ```
 
-This approach is flexible and allows you to fully utilize the Mobile Wallet Adapter session.
+`state.rs` defines the account the program stores data in:
 
-## Sign transactions using a Mobile Wallet Adapter signer
+```rust
+#[account]
+#[derive(InitSpace)]
+pub struct Counter {
+    pub count: u64,
+    pub authority: Pubkey,
+}
+```
 
-With an instantiated `Program`, you can also use the Anchor provided `rpc()` function to sign and submit an Anchor transaction to an RPC.
+Each wallet gets its own counter, at a PDA derived from the program address and the wallet:
 
-<Button href="https://github.com/solana-mobile/tutorial-apps/blob/main/AnchorCounterDapp/src/components/counter/counter-data-access.tsx#L89">
-  See example
-</Button>
+```rust
+// instructions/initialize.rs
+#[account(
+    init,
+    payer = payer,
+    space = 8 + Counter::INIT_SPACE,
+    seeds = [COUNTER_SEED, payer.key().as_ref()],
+    bump
+)]
+pub counter: Account<'info, Counter>,
+```
 
-```tsx expandable
-const { counterProgram, counterPDA } = useCounterProgram();
+Because the address is derived, the app can always find a wallet's counter without storing the address anywhere.
 
-const incrementCounter = async () => {
-  // Submit an increment transaction to the RPC endpoint
-  const signature = await counterProgram.methods
-    .increment(new anchor.BN(amount))
-    .accounts({
-      counter: counterPDA,
-    })
-    .rpc();
+## Generating the client
 
-  return signature;
+`anchor/codama.mjs` points Codama at the IDL and tells it where to write the client:
+
+```js
+export default {
+  idl: "target/idl/hello_world.json",
+  scripts: {
+    js: {
+      from: "@codama/renderers-js",
+      args: [
+        "anchor/src/client/js",
+        {
+          generatedFolder: "generated",
+          kitImportStrategy: "rootOnly",
+          syncPackageJson: false,
+        },
+      ],
+    },
+  },
 };
 ```
 
-Calling the `rpc()` will generate and sign the transaction using the interface methods (`signTransaction`, `signAllTransactions`) of the Anchor Wallet that the program was instantiated with.
+Regenerate with:
 
-## Generating Clients with Codama
-
-Use [Codama](https://github.com/codama-idl/codama) to generate TypeScript client code from your Anchor IDL.
-
-### 1. Ensure your Anchor IDL exists
-
-```shell
-anchor build
+```bash
+npm run codama:js
 ```
 
-This should produce an IDL under `target/idl/...`.
-Place the file where your `codama.json` points (example below uses `program/idl.json`).
-
-### 2. Install dependencies
-
-```shell
-npm install -D codama @codama/renderers-js
-```
-
-### 3. Add `codama.json` (project root)
+The generated code is re-exported from `anchor/src/index.ts`, and `tsconfig.json` maps that directory to `@project/anchor`, so the app imports from one place rather than reaching into generated files:
 
 ```json
-{
-  "idl": "program/idl.json",
-  "before": [],
-  "scripts": {
-    "js": {
-      "from": "@codama/renderers-js",
-      "args": ["src/generated/your-program"]
-    }
-  }
+"paths": {
+  "@project/anchor": ["./anchor/src"]
 }
 ```
 
-Why these fields exist:
+## Reading program accounts
 
-- `idl`: Tells Codama which Anchor IDL file to read.
-- `scripts.js.from`: Tells Codama which renderer to run (TypeScript/JS client renderer).
-- `scripts.js.args`: Renderer arguments. For `@codama/renderers-js`, the first value is the output directory for generated files.
-- `before`: Optional transform pipeline before rendering (empty here).
+`findCounterPda` and `fetchMaybeCounter` are both generated. The hook derives the PDA for the connected wallet and fetches the account, which may not exist yet:
 
-### 4. Generate code
+```ts
+// src/features/counter/data-access/use-counter-query.ts
+import { fetchMaybeCounter, findCounterPda } from "@project/anchor";
+import { useQuery } from "@tanstack/react-query";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 
-```shell
-npx codama run js
+export function useCounterQuery() {
+  const { account, chain, client } = useMobileWallet();
+
+  return useQuery({
+    enabled: !!account,
+    queryKey: ["counter", chain, account?.address],
+    queryFn: async () => {
+      if (!account) {
+        return null;
+      }
+      const [counterAddress] = await findCounterPda({
+        authority: account.address,
+      });
+      const counter = await fetchMaybeCounter(client.rpc, counterAddress);
+      return {
+        address: counterAddress,
+        count: counter.exists ? counter.data.count : null,
+      };
+    },
+  });
+}
 ```
 
-### 5. Output structure
+`fetchMaybeCounter` returns a result with an `exists` flag rather than throwing, which is what lets the UI distinguish "not initialized" from a counter at zero.
 
-Generated files are written to the output directory set in `scripts.js.args`.
-With the config above:
+## Sending instructions
 
-```text
-src/generated/your-program/
-  accounts/
-  instructions/
-  programs/
-  types/
-  errors/
+Instruction builders are generated too — `getInitializeInstructionAsync` and `getIncrementInstructionAsync`. The hook builds a transaction message with `@solana/kit` and hands it to the wallet through Mobile Wallet Adapter:
+
+```ts
+// src/features/counter/data-access/use-counter-program.ts
+const {
+  context: { slot: minContextSlot },
+  value: latestBlockhash,
+} = await client.rpc.getLatestBlockhash().send();
+
+const signer = getTransactionSigner(account.address, minContextSlot);
+const instruction = await createInstruction(signer);
+
+const message = pipe(
+  createTransactionMessage({ version: 0 }),
+  (message) => setTransactionMessageFeePayerSigner(signer, message),
+  (message) =>
+    setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, message),
+  (message) => appendTransactionMessageInstruction(instruction, message),
+);
+assertIsTransactionMessageWithSingleSendingSigner(message);
+
+const signatureBytes = await signAndSendTransactionMessageWithSigners(message);
 ```
+
+<Warning>
+  The wallet's sending signer must be the only signer in the transaction. Use
+  the same signer instance as fee payer and pass it to the instruction builder,
+  which is why `getTransactionSigner` is called once and reused above.
+</Warning>
+
+Each instruction is exposed as a mutation, so the UI gets pending and error state for free:
+
+```ts
+return {
+  incrementMutation: useMutation({
+    mutationFn: () =>
+      sendInstruction((authority) =>
+        getIncrementInstructionAsync({ authority }),
+      ),
+    onSettled,
+  }),
+  initializeMutation: useMutation({
+    mutationFn: () =>
+      sendInstruction((payer) => getInitializeInstructionAsync({ payer })),
+    onSettled,
+  }),
+};
+```
+
+Because the wallet submits the transaction rather than the app, the hook polls for confirmation afterwards and invalidates the counter query on settle — including on failure, since the wallet may have submitted after the app stopped waiting.
+
+## Changing the program
+
+Add an instruction to the program, then rebuild and regenerate:
+
+```bash
+npm run anchor:build
+npm run codama:js
+```
+
+The new instruction appears in the IDL, the generated client picks up a builder for it, and the app can call it. Add a mutation alongside the existing ones and wire it to the UI.
+
+## Deploying your own program
+
+The template points at a program someone else deployed, so you can run the app before you have a program of your own. To change program behavior you need your own deployment.
+
+<Steps>
+<Step title="Take ownership of the program">
+
+```bash
+npm run anchor:setup
+```
+
+This generates a program keypair, writes the new address into `lib.rs` and `Anchor.toml`, rebuilds the program, and reruns Codama — so the address changes everywhere at once.
+
+</Step>
+<Step title="Fund the deploying wallet">
+
+Deploying costs SOL. Check the wallet paying for it:
+
+```bash
+solana address && solana balance --url devnet
+```
+
+If it has no SOL, fund it at the [Solana Faucet](https://faucet.solana.com).
+
+</Step>
+<Step title="Deploy">
+
+```bash
+npm run anchor:deploy:devnet
+```
+
+</Step>
+</Steps>
+
+<Note>
+  After deploying to a new address the app shows **not initialized** again. The
+  counter PDA is derived from the program address, so a new program means a new
+  counter.
+</Note>
+
+For local development, `npm run anchor:localnet` runs a validator and `npm run anchor:deploy:localnet` deploys against it.
+
+## Common issues
+
+**"Attempt to debit an account but found no record of a prior credit"** on deploy — the deploying wallet has never held SOL. Fund the address from `solana address` at the faucet.
+
+**"Invalid instruction data" or an unknown instruction** — the client is out of step with the program. Run `npm run anchor:build` then `npm run codama:js`.
+
+**"Account does not exist"** — the PDA has not been initialized for this wallet, or the program address changed and the derived address moved with it.
+
+**Types not resolving from `@project/anchor`** — the client has not been generated yet. Run `npm run codama:js`, which writes into `anchor/src/client/js`.
 
 <FooterDisclaimer />
