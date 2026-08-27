@@ -56,7 +56,12 @@ Seeker Genesis Token implements several extensions, notably:
 
 To verify a wallet owns a Seeker Genesis Token, you can use the [`getTokenAccountsByOwnerV2` API call](https://www.helius.dev/docs/api-reference/rpc/http/gettokenaccountsbyownerv2) provided by Helius.
 
-Here's an example script:
+Two details matter for a correct check:
+
+- **Skip empty token accounts.** Transferring an SGT out of a wallet leaves the old token account open with a balance of `0`, so a wallet that once held an SGT will keep returning that account. Only a token account with a non-zero balance counts as current ownership.
+- **Return the mint address, not a boolean.** The [Anti-Sybil Example](#anti-sybil-example-in-app-rewards-claim) above requires recording the SGT's mint address, so the check should return it.
+
+Here's an example script that returns the SGT's mint address if the wallet currently holds one, or `null` otherwise:
 
 ```jsx expandable
 const { Connection, PublicKey } = require("@solana/web3.js");
@@ -143,17 +148,20 @@ async function checkWalletForSGT(walletAddress) {
 
     if (allTokenAccounts.length === 0) {
       console.log("No Token-2022 accounts found for this wallet.");
-      return false;
+      return null;
     }
 
-    // Extract mint addresses from token accounts
+    // Extract mint addresses from token accounts.
+    // Skip token accounts with a zero balance: transferring an SGT out of a
+    // wallet leaves the old token account open at a balance of 0, and it
+    // must not count as current ownership.
     const mintPubkeys = allTokenAccounts
       .map((accountInfo) => {
         try {
-          if (accountInfo?.account?.data?.parsed?.info?.mint) {
-            return new PublicKey(accountInfo.account.data.parsed.info.mint);
+          const info = accountInfo?.account?.data?.parsed?.info;
+          if (info?.mint && info.tokenAmount?.amount !== "0") {
+            return new PublicKey(info.mint);
           } else {
-            console.log("No mint found for account:", accountInfo);
             return null;
           }
         } catch (error) {
@@ -215,10 +223,11 @@ async function checkWalletForSGT(walletAddress) {
             hasCorrectMetadata &&
             hasCorrectGroupMember
           ) {
+            const sgtMintAddress = mint.address.toBase58();
             console.log(
-              `\nVERIFIED SGT FOUND: Wallet holds a verified SGT (${mint.address.toBase58()}).`,
+              `\nVERIFIED SGT FOUND: Wallet holds a verified SGT (${sgtMintAddress}).`,
             );
-            return true;
+            return sgtMintAddress;
           }
         } catch (mintError) {
           // Skip this mint if we can't unpack it
@@ -232,10 +241,10 @@ async function checkWalletForSGT(walletAddress) {
 
     // No verified SGT found in wallet
     console.log("\nNo verified SGT found in wallet.");
-    return false;
+    return null;
   } catch (error) {
     console.error("Error verifying SGT ownership:", error.message);
-    return false;
+    return null;
   }
 }
 ```
