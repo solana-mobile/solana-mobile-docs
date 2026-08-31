@@ -210,6 +210,10 @@
               "recipes/solana-development/anchor-integration",
               "recipes/solana-development/using-anchor-programs"
             ]
+          },
+          {
+            "group": "Sample Apps",
+            "pages": ["recipes/sample-apps/cause-pots"]
           }
         ]
       },

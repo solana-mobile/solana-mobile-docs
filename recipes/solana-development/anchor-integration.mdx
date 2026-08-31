@@ -7,8 +7,8 @@ sidebarTitle: "Anchor Integration"
 import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
 import { Button } from "/snippets/button.mdx";
 
-<Button href="https://github.com/solana-mobile/templates/tree/main/mobile/expo-kit-anchor">
-  expo-kit-anchor template
+<Button href="https://github.com/solana-mobile/templates">
+  Solana Mobile templates
 </Button>
 
 ## What you will learn
@@ -32,10 +32,8 @@ The `expo-kit-anchor` template ships an Expo app and an Anchor program in one pr
 <Step title="Generate the app">
 
 ```bash
-npx solana-mobile@latest create anchor-demo
+npx solana-mobile@latest create anchor-demo -t expo-kit-anchor
 ```
-
-Select the **expo-kit-anchor** template when prompted.
 
 </Step>
 <Step title="Run it">
@@ -292,6 +290,21 @@ npm run anchor:deploy:devnet
 </Note>
 
 For local development, `npm run anchor:localnet` runs a validator and `npm run anchor:deploy:localnet` deploys against it.
+
+## A complete app on this stack
+
+`sample-expo-kit-cause-pots` is a finished app built the same way — collaborative savings pots where contributors pool SOL into a time-locked vault that only releases once enough of them sign off:
+
+```bash
+npx solana-mobile@latest create cause-pots -t sample-expo-kit-cause-pots
+```
+
+It scales up everything above: five instructions instead of two, PDAs for pots, vaults, and contributors, a `getProgramAccounts` scan decoded with the generated client, and an activity feed rebuilt from transaction history with the generated instruction parser. There is no backend — everything the app shows comes from the chain or the device. The [Cause Pots guide](/recipes/sample-apps/cause-pots) walks through how it is put together.
+
+<Note>
+  It is a reference, not a starting point. Read it and copy the parts you need
+  rather than building on top of it.
+</Note>
 
 ## Common issues
 
