@@ -387,7 +387,7 @@ Use the network selector in the app, then connect your wallet and tap **Request 
   [fakewallet](https://github.com/solana-mobile/mobile-wallet-adapter/tree/main/android/fakewallet).
 </Warning>
 
-Reaching a plain `http://` localnet needs cleartext HTTP, which Android blocks by default in release builds (debug builds allow it out of the box). The app scopes the exception to the loopback address with an Android [network security configuration](https://developer.android.com/privacy-and-security/security-config) written into the release build by `plugins/with-release-network-security-config.js` — cleartext is permitted only to `localhost`, `127.0.0.1`, and the emulator's `10.0.2.2`, and every other host still requires HTTPS. Remove the plugin from `app.json` if release builds don't need localnet.
+Reaching a plain `http://` localnet needs cleartext HTTP, which Android only allows in debug builds — the kind `npm run android` produces. Release builds only talk HTTPS; if you need localnet in one, add an Android [network security configuration](https://developer.android.com/privacy-and-security/security-config) scoped to `localhost` and `127.0.0.1`.
 
 ## Common issues
 
