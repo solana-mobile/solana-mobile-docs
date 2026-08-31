@@ -102,9 +102,39 @@ The verification process has **two main steps**:
 
 #### Step 1 - Prove Wallet Ownership with SIWS
 
+**Server-side: Issue the sign-in payload**
+
+Generate the SIWS payload on your backend so you control the `nonce`, `issuedAt`, and `expirationTime` fields. The nonce must be single-use and short-lived — without it, a captured `signInResult` can be replayed to authenticate forever:
+
+```tsx expandable
+// This happens on your backend server
+import crypto from "crypto";
+
+async function createSignInPayload() {
+  const nonce = crypto.randomBytes(16).toString("hex");
+  const issuedAt = new Date();
+  const expirationTime = new Date(issuedAt.getTime() + 10 * 60 * 1000); // 10 minutes
+
+  const signInPayload = {
+    domain: "yourdapp.com",
+    statement: "Sign in to verify Seeker ownership",
+    uri: "https://yourdapp.com",
+    nonce,
+    issuedAt: issuedAt.toISOString(),
+    expirationTime: expirationTime.toISOString(),
+  };
+
+  // Store the issued payload, keyed by nonce, so verification can later
+  // load it from your own store instead of trusting a client-supplied copy.
+  await storeSignInPayload(nonce, signInPayload, expirationTime);
+
+  return signInPayload;
+}
+```
+
 **Client-side: Sign the SIWS Payload**
 
-Use Mobile Wallet Adapter to request the user to sign the SIWS payload:
+Fetch the payload from your backend, then use Mobile Wallet Adapter to request the user to sign it:
 
 ```tsx expandable
 import { transact } from "@solana-mobile/mobile-wallet-adapter-protocol-web3js";
@@ -116,47 +146,92 @@ const APP_IDENTITY = {
 };
 
 async function signSIWSPayload() {
-  const result = await transact(async (wallet) => {
+  // Request a fresh sign-in payload from your backend
+  const response = await fetch("https://yourdapp.com/api/siws-payload");
+  const signInPayload = await response.json();
+
+  const signInResult = await transact(async (wallet) => {
     const authorizationResult = await wallet.authorize({
       cluster: "solana:mainnet",
       identity: APP_IDENTITY,
-      sign_in_payload: {
-        domain: "yourdapp.com",
-        statement: "Sign in to verify Seeker ownership",
-        uri: "https://yourdapp.com",
-      },
+      sign_in_payload: signInPayload,
     });
 
-    return {
-      walletAddress: authorizationResult.accounts[0].address,
-      signInResult: authorizationResult.sign_in_result,
-    };
+    return authorizationResult.sign_in_result;
   });
 
-  return result;
+  // Send this back to your backend for verification, along with the
+  // payload's nonce so the backend can look up the payload it issued
+  return { nonce: signInPayload.nonce, signInResult };
 }
 ```
 
 **Server-side: Verify the SIWS signature**
 
-The `signInResult` from the MWA response needs to be verified on your backend server:
+The `signInResult` from the MWA response needs to be verified on your backend server. Verification must check three things:
+
+1. The `nonce` is one you issued, has not expired, and has not been used before — load the payload you stored for it rather than trusting a client-supplied copy.
+2. The signature is valid for the issued payload.
+3. The payload's `domain` is your domain — a signature obtained by a different dApp must not verify.
+
+On success, `verifySIWS` returns the verified wallet address:
 
 ```tsx expandable
 // This happens on your backend server
 import { verifySignIn } from "@solana/wallet-standard-util";
+import { PublicKey } from "@solana/web3.js";
 
-async function verifySIWS(signInPayload, signInResult): Promise<boolean> {
+const EXPECTED_DOMAIN = "yourdapp.com";
+
+async function verifySIWS(nonce, signInResult): Promise<string | null> {
+  // A wallet that doesn't support SIWS omits `sign_in_result`, so validate
+  // the input shape before consuming the nonce.
+  if (
+    !signInResult?.address ||
+    !signInResult.signature ||
+    !signInResult.signed_message
+  ) {
+    return null;
+  }
+
+  // 1. Load the payload you issued for this nonce. consumeSignInPayload
+  // should atomically mark the nonce as used and return null if the nonce
+  // is unknown, expired, or already used.
+  const signInPayload = await consumeSignInPayload(nonce);
+  if (!signInPayload) {
+    return null;
+  }
+
+  // The MWA `sign_in_result` contains base64-encoded `address`,
+  // `signed_message`, and `signature` fields. Convert it into the
+  // SolanaSignInOutput shape that `verifySignIn` expects.
+  const publicKey = new Uint8Array(Buffer.from(signInResult.address, "base64"));
+  if (publicKey.length !== 32) {
+    return null;
+  }
+  const walletAddress = new PublicKey(publicKey).toBase58();
   const serialisedOutput = {
     account: {
-      publicKey: new Uint8Array(signInResult.account.publicKey),
-      ...signInResult.account,
+      address: walletAddress,
+      publicKey,
     },
-    signature: new Uint8Array(signInResult.signature),
-    signedMessage: new Uint8Array(signInResult.signedMessage),
+    signature: new Uint8Array(Buffer.from(signInResult.signature, "base64")),
+    signedMessage: new Uint8Array(
+      Buffer.from(signInResult.signed_message, "base64"),
+    ),
   };
 
-  // Verify the signature against the original payload
-  return verifySignIn(signInPayload, serialisedOutput);
+  // 2. Verify the signature against the issued payload
+  if (!verifySignIn(signInPayload, serialisedOutput)) {
+    return null;
+  }
+
+  // 3. The payload must be bound to your domain
+  if (signInPayload.domain !== EXPECTED_DOMAIN) {
+    return null;
+  }
+
+  return walletAddress;
 }
 ```
 
@@ -168,23 +243,24 @@ For complete SIWS verification details, see the [Phantom SIWS spec](https://gith
 
 On your backend, make an RPC query to check if the user's wallet contains a Seeker Genesis Token.
 
-- Reference this [**example script**](/marketing/engaging-seeker-users#verifying-seeker-genesis-token-ownership) that uses the Helius `getTokenAccountsByOwnerV2` API.
+- Reference this [**example script**](/marketing/engaging-seeker-users#verifying-seeker-genesis-token-ownership) that uses the Helius `getTokenAccountsByOwnerV2` API. It returns the SGT's mint address if the wallet holds one, or `null` otherwise.
 
 #### Step 3 - Combine SIWS Verification and SGT Check
 
-On your backend server, combine the SIWS verification and SGT ownership check together to confirm the user is a verified Seeker owner:
+On your backend server, combine the SIWS verification and SGT ownership check together to confirm the user is a verified Seeker owner. The function returns the SGT's mint address so you can record it for uniqueness checks (see the warning below), or `null` if verification fails:
 
 ```tsx
 // On your backend server
-async function verifySeekerUser(signInResult) {
-  // Verify SIWS signature
-  const siwsVerified = await verifySIWS(signInResult);
+async function verifySeekerUser(nonce, signInResult) {
+  // Verify nonce, signature, and domain, and get the verified wallet address
+  const walletAddress = await verifySIWS(nonce, signInResult);
+  if (!walletAddress) {
+    return null;
+  }
 
-  // Check SGT ownership
-  const hasSGT = await checkWalletForSGT(signInResult.walletAddress);
-
-  // If both true, user is a verified owner of a Seeker device.
-  return siwsVerified && hasSGT;
+  // Returns the SGT's mint address if the wallet holds one, or null.
+  // Store the mint address to enforce uniqueness across transfers.
+  return await checkWalletForSGT(walletAddress);
 }
 ```
 

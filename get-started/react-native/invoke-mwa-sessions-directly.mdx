@@ -365,8 +365,8 @@ export function verifySIWS(
 ): boolean {
   const serialisedOutput: SolanaSignInOutput = {
     account: {
-      publicKey: new Uint8Array(output.account.publicKey),
       ...output.account,
+      publicKey: new Uint8Array(output.account.publicKey),
     },
     signature: new Uint8Array(output.signature),
     signedMessage: new Uint8Array(output.signedMessage),
@@ -374,6 +374,12 @@ export function verifySIWS(
   return verifySignIn(input, serialisedOutput);
 }
 ```
+
+<Warning>
+
+In production, generate the `sign_in_payload` on your backend with a single-use `nonce`, `issuedAt`, and `expirationTime`, then verify the result server-side — including that the payload's `domain` is yours and the nonce hasn't been used before. See [Detecting Seeker Users](/recipes/general/detecting-seeker-users#step-1---prove-wallet-ownership-with-siws) for a complete example.
+
+</Warning>
 
 See the [Phantom SIWS docs](https://github.com/phantom/sign-in-with-solana?tab=readme-ov-file#dapp-integration) for more information. It is written for web dApps, but can be extrapolated for mobile dApps.
 
