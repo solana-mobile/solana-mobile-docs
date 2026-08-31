@@ -1,0 +1,78 @@
+---
+title: "solana-mobile templates"
+description: "Manage template repositories."
+sidebarTitle: "templates"
+---
+
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
+Maintain a template repository like [solana-mobile/templates](https://github.com/solana-mobile/templates) — the source of the templates used by [`create`](/cli/create). You only need this command if you author or maintain templates.
+
+## templates check
+
+Check that generated template artifacts are up to date:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest templates check
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest templates check
+```
+
+```bash bun
+bunx solana-mobile@latest templates check
+```
+
+</CodeGroup>
+
+## templates generate
+
+Generate template artifacts:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest templates generate
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest templates generate
+```
+
+```bash bun
+bunx solana-mobile@latest templates generate
+```
+
+</CodeGroup>
+
+## templates sync
+
+Sync git-tracked templates to another template repository:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest templates sync ../my-templates
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest templates sync ../my-templates
+```
+
+```bash bun
+bunx solana-mobile@latest templates sync ../my-templates
+```
+
+</CodeGroup>
+
+| Option      | Description                                                                                  |
+| ----------- | -------------------------------------------------------------------------------------------- |
+| `--dry-run` | Show what would change without writing                                                       |
+| `--force`   | Sync even if the target has uncommitted changes — synced files may be overwritten or removed |
+
+All subcommands accept `--root <path>` to point at a template repository other than the current directory.
+
+<FooterDisclaimer />

@@ -1,0 +1,109 @@
+---
+title: "solana-mobile device"
+description: "Work with connected devices and emulators."
+sidebarTitle: "device"
+---
+
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
+Work with Android devices and emulators connected over adb.
+
+## device install
+
+Install APKs from local files, directories, or the built-in APK catalog. Run it without arguments to pick from the catalog, which includes tools like the Mobile Wallet Adapter test wallet (`fakewallet`):
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest device install
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest device install
+```
+
+```bash bun
+bunx solana-mobile@latest device install
+```
+
+</CodeGroup>
+
+Or pass one or more APK files or directories:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest device install ./app-release.apk --all
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest device install ./app-release.apk --all
+```
+
+```bash bun
+bunx solana-mobile@latest device install ./app-release.apk --all
+```
+
+</CodeGroup>
+
+| Option              | Description                                      |
+| ------------------- | ------------------------------------------------ |
+| `--all`             | Install on every connected device                |
+| `--device <serial>` | Target a device serial                           |
+| `--downgrade`       | Allow version downgrades (`adb install -d`)      |
+| `--force`           | Re-download catalog APKs even when cached        |
+| `--grant`           | Grant all runtime permissions (`adb install -g`) |
+| `--list`            | List the APKs available in the catalog           |
+| `-v, --verbose`     | Verbose output                                   |
+
+## device list
+
+List connected devices and emulators:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest device list
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest device list
+```
+
+```bash bun
+bunx solana-mobile@latest device list
+```
+
+</CodeGroup>
+
+| Option   | Description                |
+| -------- | -------------------------- |
+| `--json` | Print a stable JSON report |
+
+## device open
+
+Open a URL, port, or deep link on a connected device. For localhost URLs with an explicit port, the CLI creates an `adb reverse` (unless `--no-forward` is set) so the device can reach servers running on your machine:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest device open http://localhost:3000
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest device open http://localhost:3000
+```
+
+```bash bun
+bunx solana-mobile@latest device open http://localhost:3000
+```
+
+</CodeGroup>
+
+| Option              | Description                                     |
+| ------------------- | ----------------------------------------------- |
+| `--device <serial>` | Target a device serial                          |
+| `--no-forward`      | Do not create an adb reverse for localhost URLs |
+| `-v, --verbose`     | Explain URL and port forwarding decisions       |
+
+<FooterDisclaimer />

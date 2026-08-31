@@ -1,0 +1,198 @@
+---
+title: "solana-mobile emulator"
+description: "Manage Android emulators and system images."
+sidebarTitle: "emulator"
+---
+
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
+Create, start, and manage Android emulators without opening Android Studio. `emu` works as a shorthand for `emulator`.
+
+## emulator create
+
+Create or update an Android emulator. Run it without arguments for interactive prompts:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest emulator create --start
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest emulator create --start
+```
+
+```bash bun
+bunx solana-mobile@latest emulator create --start
+```
+
+</CodeGroup>
+
+| Option                     | Description                                  |
+| -------------------------- | -------------------------------------------- |
+| `--data-size <size>`       | Data partition size                          |
+| `--device <device>`        | Android device profile id                    |
+| `--no-tune`                | Skip applying emulator tweaks after starting |
+| `--profile <profile>`      | Solana Mobile emulator profile               |
+| `--ram-mb <megabytes>`     | RAM size in MB                               |
+| `--sdcard-size <size>`     | SD card size                                 |
+| `--sdk-root <path>`        | Android SDK root                             |
+| `--start`                  | Start the emulator after creating it         |
+| `--system-image <package>` | Android system image package                 |
+| `-v, --verbose`            | Verbose output                               |
+| `--vm-heap-mb <megabytes>` | VM heap size in MB                           |
+
+## emulator delete
+
+Delete one or more Android emulators:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest emulator delete my-emulator
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest emulator delete my-emulator
+```
+
+```bash bun
+bunx solana-mobile@latest emulator delete my-emulator
+```
+
+</CodeGroup>
+
+## emulator images
+
+Manage Android system images with the `install`, `list`, and `delete` subcommands:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest emulator images install
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest emulator images install
+```
+
+```bash bun
+bunx solana-mobile@latest emulator images install
+```
+
+</CodeGroup>
+
+| Option              | Description                                       |
+| ------------------- | ------------------------------------------------- |
+| `--all`             | Show all available system images (`install` only) |
+| `--sdk-root <path>` | Android SDK root                                  |
+| `-v, --verbose`     | Verbose output                                    |
+
+## emulator list
+
+List installed Android emulators:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest emulator list
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest emulator list
+```
+
+```bash bun
+bunx solana-mobile@latest emulator list
+```
+
+</CodeGroup>
+
+## emulator start
+
+Start an Android emulator. Run it without a name to pick one interactively. After boot, the CLI applies the [`tune`](#emulator-tune) tweaks automatically:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest emulator start my-emulator
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest emulator start my-emulator
+```
+
+```bash bun
+bunx solana-mobile@latest emulator start my-emulator
+```
+
+</CodeGroup>
+
+| Option              | Description                                  |
+| ------------------- | -------------------------------------------- |
+| `--no-tune`         | Skip applying emulator tweaks after starting |
+| `--sdk-root <path>` | Android SDK root                             |
+
+## emulator status
+
+Show the status of an Android emulator by name or serial:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest emulator status
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest emulator status
+```
+
+```bash bun
+bunx solana-mobile@latest emulator status
+```
+
+</CodeGroup>
+
+## emulator stop
+
+Stop a running Android emulator by name or serial:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest emulator stop my-emulator
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest emulator stop my-emulator
+```
+
+```bash bun
+bunx solana-mobile@latest emulator stop my-emulator
+```
+
+</CodeGroup>
+
+## emulator tune
+
+Apply agent-friendly tweaks to a running Android emulator: it disables animations, first-run dialogs, lock screen, and boot notifications that get in the way of automation. `emulator start` and `emulator create --start` apply these tweaks automatically after boot (skip with `--no-tune`); run `tune` to apply them to an emulator that is already running:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest emulator tune
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest emulator tune
+```
+
+```bash bun
+bunx solana-mobile@latest emulator tune
+```
+
+</CodeGroup>
+
+Tweaks only apply to emulators — physical device serials are refused.
+
+<FooterDisclaimer />
