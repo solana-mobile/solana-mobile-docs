@@ -1,0 +1,46 @@
+---
+title: "Seeker Connect"
+sidebarTitle: "Seeker Connect"
+description: "Seeker Connect is a dapp SDK for connecting directly to a certified device's own wallet, built on Mobile Wallet Adapter."
+toc: false
+---
+
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
+Seeker Connect is a dapp-only SDK that connects your app directly to a Solana Mobile certified device's own wallet — Seeker is the first such device. Instead of the generic "pick a wallet" chooser, it provides a branded, direct connect experience using the Endpoint-specific URI (Android App Link) mechanism from the MWA spec.
+
+## Relationship to Mobile Wallet Adapter
+
+Seeker Connect is built on top of the official [Mobile Wallet Adapter](/solana-mobile-stack/mobile-wallet-adapter) libraries. It is a UX/DX layer, not a protocol reimplementation.
+
+## Targets
+
+| Target           | Status                                                                 |
+| ---------------- | ---------------------------------------------------------------------- |
+| Web              | Available — Wallet Standard implementation, plus an imperative web SDK |
+| React Native     | Planned                                                                |
+| Android (Kotlin) | Planned                                                                |
+
+A Wallet Standard-compatible package is always provided.
+
+## Get started
+
+The easiest way to get started is with [`solana-mobile create`](/cli/create), using a template that ships Seeker Connect:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest create my-app --template react-kit-shadcn
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest create my-app --template react-kit-shadcn
+```
+
+```bash bun
+bunx solana-mobile@latest create my-app --template react-kit-shadcn
+```
+
+</CodeGroup>
+
+<FooterDisclaimer />

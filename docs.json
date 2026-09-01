@@ -124,7 +124,8 @@
             "group": "Software",
             "pages": [
               "solana-mobile-stack/dapp-store",
-              "solana-mobile-stack/mobile-wallet-adapter"
+              "solana-mobile-stack/mobile-wallet-adapter",
+              "solana-mobile-stack/seeker-connect"
             ]
           },
           {
