@@ -1,0 +1,85 @@
+---
+title: "solana-mobile create"
+description: "Create a new Solana Mobile project from a template."
+sidebarTitle: "create"
+---
+
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
+Scaffold a new Solana Mobile project. Run it without arguments for interactive prompts, or pass a project name and template to skip them:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest create my-app
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest create my-app
+```
+
+```bash bun
+bunx solana-mobile@latest create my-app
+```
+
+</CodeGroup>
+
+After scaffolding, the CLI initializes git, installs dependencies, and runs the template's init script. Skip any of these with the `--skip-*` flags below.
+
+## Templates
+
+List the available templates and their descriptions:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest create --list-templates
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest create --list-templates
+```
+
+```bash bun
+bunx solana-mobile@latest create --list-templates
+```
+
+</CodeGroup>
+
+Pick one with `--template`:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest create my-app --template expo-kit-minimal
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest create my-app --template expo-kit-minimal
+```
+
+```bash bun
+bunx solana-mobile@latest create my-app --template expo-kit-minimal
+```
+
+</CodeGroup>
+
+Options declared by the selected template are passed through as boolean long flags, e.g. `create my-app --minimal --reset-project`.
+
+## Options
+
+| Option                                     | Description                                           |
+| ------------------------------------------ | ----------------------------------------------------- |
+| `-d, --dry-run`                            | Show what would happen without writing files          |
+| `--list-template-ids`                      | List available template ids as a JSON array           |
+| `--list-templates`                         | List available templates                              |
+| `--list-versions`                          | Verify your versions of Anchor, AVM, Rust, and Solana |
+| `--minimal`                                | Use the minimal template                              |
+| `--pm, --package-manager <packageManager>` | Package manager to use                                |
+| `--skip-git`                               | Skip git initialization                               |
+| `--skip-init`                              | Skip running the init script                          |
+| `--skip-install`                           | Skip installing dependencies                          |
+| `-t, --template <templateName>`            | Use a template                                        |
+| `-v, --verbose`                            | Verbose output                                        |
+
+<FooterDisclaimer />

@@ -145,6 +145,27 @@
         ]
       },
       {
+        "tab": "CLI",
+        "icon": "terminal",
+        "groups": [
+          {
+            "group": "CLI",
+            "pages": ["cli/overview"]
+          },
+          {
+            "group": "Commands",
+            "pages": [
+              "cli/create",
+              "cli/device",
+              "cli/doctor",
+              "cli/emulator",
+              "cli/localnet",
+              "cli/templates"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "dApp Store",
         "icon": "store",
         "groups": [

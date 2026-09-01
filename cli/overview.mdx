@@ -1,0 +1,52 @@
+---
+title: "Solana Mobile CLI"
+description: "Command-line tool for Solana Mobile development."
+sidebarTitle: "Overview"
+---
+
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
+The `solana-mobile` CLI handles the day-to-day tasks of Solana Mobile development: scaffolding projects, checking your environment, managing emulators and devices, and running a local validator your devices can reach.
+
+## Usage
+
+Run the CLI directly with your package manager's runner — there is no global install:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest
+```
+
+```bash bun
+bunx solana-mobile@latest
+```
+
+</CodeGroup>
+
+Always include the `@latest` tag so the runner resolves the package's latest release instead of running an older cached version.
+
+## Commands
+
+| Command                       | Description                                            |
+| ----------------------------- | ------------------------------------------------------ |
+| [`create`](/cli/create)       | Create a new Solana Mobile project                     |
+| [`device`](/cli/device)       | Work with connected devices and emulators              |
+| [`doctor`](/cli/doctor)       | Check local development dependencies                   |
+| [`emulator`](/cli/emulator)   | Manage Android emulators                               |
+| [`localnet`](/cli/localnet)   | Run a local Solana validator for emulators and devices |
+| [`templates`](/cli/templates) | Manage template repositories                           |
+
+## Global options
+
+| Option                 | Description                   |
+| ---------------------- | ----------------------------- |
+| `-h, --help`           | Show help for any command     |
+| `--skip-version-check` | Skip checking for CLI updates |
+| `-V, --version`        | Print the CLI version         |
+
+<FooterDisclaimer />

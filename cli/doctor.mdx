@@ -1,0 +1,48 @@
+---
+title: "solana-mobile doctor"
+description: "Check your local development environment."
+sidebarTitle: "doctor"
+---
+
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
+Check that your machine is ready for Solana Mobile development:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest doctor
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest doctor
+```
+
+```bash bun
+bunx solana-mobile@latest doctor
+```
+
+</CodeGroup>
+
+The report covers your operating system, JavaScript runtimes and package managers, Java, the Android SDK and its tools, connected devices and emulators, and ends with a readiness summary plus recommendations for anything that needs fixing.
+
+```
+Readiness
+  ✓ Project creation          ready
+  ✓ Android build             ready
+  ✓ Emulator workflow         ready
+  • Physical device workflow  unavailable
+
+✓ Ready for Solana Mobile development.
+```
+
+## Options
+
+| Option      | Description                                   |
+| ----------- | --------------------------------------------- |
+| `--json`    | Print a stable JSON report                    |
+| `--verbose` | Include resolved paths and diagnostic details |
+
+Use `--json` to consume the report from scripts or CI.
+
+<FooterDisclaimer />

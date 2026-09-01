@@ -1,0 +1,166 @@
+---
+title: "solana-mobile localnet"
+description: "Run a local Solana validator for emulators and devices."
+sidebarTitle: "localnet"
+---
+
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
+Run a local Solana validator in a container and forward its ports to connected devices and emulators, so apps on the device can reach `localhost:8899` as if the validator ran on the device itself.
+
+## Shared options
+
+These options apply to `start`, `check`, `forward`, `status`, and `stop`:
+
+| Option                 | Description                                      |
+| ---------------------- | ------------------------------------------------ |
+| `--device <serial>`    | Target a device serial (repeatable)              |
+| `--engine <engine>`    | Validator engine: `surfpool` or `test-validator` |
+| `--port <port>`        | Host port for the RPC endpoint                   |
+| `--studio-port <port>` | Host port for the Studio UI                      |
+| `--ws-port <port>`     | Host port for the WebSocket endpoint             |
+
+## localnet start
+
+Start the validator and forward its ports to every connected device:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest localnet start
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest localnet start
+```
+
+```bash bun
+bunx solana-mobile@latest localnet start
+```
+
+</CodeGroup>
+
+| Option            | Description                                       |
+| ----------------- | ------------------------------------------------- |
+| `--detach`        | Leave the validator running in the background     |
+| `--image <image>` | Container image to run                            |
+| `--no-watch`      | Do not re-apply port forwards when devices change |
+
+## localnet check
+
+Verify the validator is reachable from every device:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest localnet check
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest localnet check
+```
+
+```bash bun
+bunx solana-mobile@latest localnet check
+```
+
+</CodeGroup>
+
+| Option   | Description                                   |
+| -------- | --------------------------------------------- |
+| `--json` | Print a stable JSON report                    |
+| `--open` | Also open the Studio UI in the device browser |
+
+## localnet forward
+
+Forward validator ports to connected devices — useful after plugging in a new device:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest localnet forward
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest localnet forward
+```
+
+```bash bun
+bunx solana-mobile@latest localnet forward
+```
+
+</CodeGroup>
+
+| Option    | Description                                        |
+| --------- | -------------------------------------------------- |
+| `--watch` | Keep re-applying port forwards when devices change |
+
+## localnet logs
+
+Print validator logs:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest localnet logs
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest localnet logs
+```
+
+```bash bun
+bunx solana-mobile@latest localnet logs
+```
+
+</CodeGroup>
+
+| Option            | Description              |
+| ----------------- | ------------------------ |
+| `--lines <count>` | Number of lines to print |
+
+## localnet status
+
+Show validator and port forward status:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest localnet status
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest localnet status
+```
+
+```bash bun
+bunx solana-mobile@latest localnet status
+```
+
+</CodeGroup>
+
+| Option   | Description                |
+| -------- | -------------------------- |
+| `--json` | Print a stable JSON report |
+
+## localnet stop
+
+Stop the validator and remove its port forwards:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest localnet stop
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest localnet stop
+```
+
+```bash bun
+bunx solana-mobile@latest localnet stop
+```
+
+</CodeGroup>
+
+<FooterDisclaimer />
