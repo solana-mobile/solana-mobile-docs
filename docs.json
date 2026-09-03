@@ -160,7 +160,9 @@
               "cli/doctor",
               "cli/emulator",
               "cli/localnet",
-              "cli/templates"
+              "cli/playground",
+              "cli/templates",
+              "cli/webshell"
             ]
           }
         ]

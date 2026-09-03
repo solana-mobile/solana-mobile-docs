@@ -1,0 +1,113 @@
+---
+title: "solana-mobile playground"
+description: "Serve a wallet testing page and open it on a connected device."
+sidebarTitle: "playground"
+---
+
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
+Serve a bundled wallet testing page, forward it to a connected device, open it in the device browser, and stream every Mobile Wallet Adapter interaction back to your terminal — so you can exercise a wallet without scaffolding an app first:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest playground
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest playground
+```
+
+```bash bun
+bunx solana-mobile@latest playground
+```
+
+</CodeGroup>
+
+The page runs against Devnet by default and covers the whole Mobile Wallet Adapter surface: connect, sign in (SIWS), sign message, sign transaction, and sign and send. Each result is printed as it happens, and the command keeps running until you interrupt it with `Ctrl+C`:
+
+```
+Cluster: Devnet (solana:devnet), RPC https://api.devnet.solana.com
+Forwarded device port 4747 to host port 4747
+Opened http://localhost:4747 on solana-mobile (emulator-5554)
+Waiting for wallet interactions — press Ctrl+C to stop
+✔ Connect — 7xKX…gAsU
+✔ Sign In — signature 4sT2mNq8…9pQmL3Vd
+✔ Sign and Send — 2ZBqWy4x…KpR7nHfa
+```
+
+Successful actions report the address or signature the wallet returned; anything the wallet rejects is printed with a `✖` and its error message.
+
+The page caches its authorization so repeat actions skip the wallet approval, and a **Reset authorization** button clears it. Once connected, Devnet and Testnet show a link to the [Solana faucet](https://faucet.solana.com) and Localnet gets an **Airdrop 1 SOL** button, so a fresh wallet account can be funded without leaving the page.
+
+<Note>
+  The device needs a wallet that supports the Mobile Wallet Adapter protocol. If
+  you do not have one installed, `device install fakewallet` puts the test
+  wallet on the device — see [`device install`](/cli/device#device-install).
+</Note>
+
+## Clusters
+
+Pick a cluster with `--cluster`:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest playground --cluster localnet
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest playground --cluster localnet
+```
+
+```bash bun
+bunx solana-mobile@latest playground --cluster localnet
+```
+
+</CodeGroup>
+
+| Cluster    | RPC endpoint                                  |
+| ---------- | --------------------------------------------- |
+| `devnet`   | `https://api.devnet.solana.com` (the default) |
+| `localnet` | Your [`localnet`](/cli/localnet) validator    |
+| `mainnet`  | None — pass your own with `--url`             |
+| `testnet`  | `https://api.testnet.solana.com`              |
+
+`--url` overrides the RPC endpoint while the wallet still sees the chain of the selected cluster. Mainnet always needs one, because the playground page runs in the device browser and Solana's public `api.mainnet-beta.solana.com` endpoint answers browser-origin requests with `403 Access forbidden`:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest playground --cluster mainnet --url https://my-rpc.example.com
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest playground --cluster mainnet --url https://my-rpc.example.com
+```
+
+```bash bun
+bunx solana-mobile@latest playground --cluster mainnet --url https://my-rpc.example.com
+```
+
+</CodeGroup>
+
+With `--cluster localnet`, start [`localnet`](/cli/localnet) first — the playground warns you when the local validator is not reachable.
+
+## Ports
+
+The device always opens `http://localhost:4747`; `--port` moves the host side of the `adb reverse`. Without `--port`, a busy port falls back to the next free one. The reverse is removed when the command exits.
+
+Use `--no-open` to print the URL instead of launching the device browser.
+
+## Options
+
+| Option                | Description                                            |
+| --------------------- | ------------------------------------------------------ |
+| `--cluster <cluster>` | Cluster: `devnet`, `localnet`, `mainnet`, or `testnet` |
+| `--device <serial>`   | Target a device serial                                 |
+| `--no-open`           | Do not open the page on the device                     |
+| `--port <port>`       | Host port for the playground server                    |
+| `--url <url>`         | Custom RPC URL for the selected cluster                |
+| `-v, --verbose`       | Verbose output                                         |
+
+<FooterDisclaimer />
