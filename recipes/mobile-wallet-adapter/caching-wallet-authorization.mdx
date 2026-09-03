@@ -17,7 +17,9 @@ import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
 
 When a user authorizes your dApp with their wallet via MWA, the session returns an `auth_token` and account details. By caching these details, your app can stay "connected" across app restarts without prompting the user to re-authorize every time.
 
-The [`MobileWalletProvider`](https://github.com/wallet-ui/wallet-ui) from `@wallet-ui/react-native-web3js` handles this automatically with a built-in `AsyncStorage` cache. You can swap in your own cache implementation (e.g for encrypted storage) by passing a custom `cache` prop.
+[`MobileWalletProvider`](https://github.com/wallet-ui/wallet-ui) handles this automatically with a built-in `AsyncStorage` cache. You can swap in your own cache implementation (e.g for encrypted storage) by passing a custom `cache` prop.
+
+Both Wallet UI packages expose the same `cache` prop — use the tab for the one you installed. See [Installation](/get-started/react-native/installation) if you haven't picked one yet.
 
 ## The `Cache` interface
 
@@ -38,6 +40,39 @@ interface Cache<T> {
 ## Default: `AsyncStorage`
 
 By default, `MobileWalletProvider` uses `@react-native-async-storage/async-storage` to persist authorization data. You don't need to configure anything for this to work:
+
+<Tabs>
+<Tab title="@solana/kit">
+
+```tsx
+import {
+  createSolanaMainnet,
+  MobileWalletProvider,
+} from "@wallet-ui/react-native-kit";
+
+const cluster = createSolanaMainnet({
+  url: "https://api.mainnet-beta.solana.com",
+});
+
+function App() {
+  return (
+    <MobileWalletProvider
+      cluster={cluster}
+      identity={{
+        name: "My App",
+        uri: "https://myapp.com",
+        icon: "favicon.ico",
+      }}
+    >
+      {/* cache defaults to AsyncStorage */}
+      {children}
+    </MobileWalletProvider>
+  );
+}
+```
+
+</Tab>
+<Tab title="@solana/web3.js">
 
 ```tsx
 import { MobileWalletProvider } from "@wallet-ui/react-native-web3js";
@@ -60,6 +95,9 @@ function App() {
 }
 ```
 
+</Tab>
+</Tabs>
+
 ## Custom cache: `expo-secure-store`
 
 If you want to store authorization details in encrypted storage (e.g for sensitive auth tokens), you can create a custom cache using `expo-secure-store`.
@@ -72,6 +110,43 @@ npx expo install expo-secure-store
 
 ### Create a Secure Store cache
 
+<Tabs>
+<Tab title="@solana/kit">
+
+Cached accounts hold their address as a plain string, so the cache is a straight `JSON.stringify` / `JSON.parse` round trip.
+
+```tsx
+import * as SecureStore from "expo-secure-store";
+import { Cache } from "@wallet-ui/react-native-kit";
+
+const STORAGE_KEY = "authorization-cache";
+
+export function createSecureStoreCache<T>(): Cache<T> {
+  return {
+    async get(): Promise<T | undefined> {
+      const result = await SecureStore.getItemAsync(STORAGE_KEY);
+      if (!result) return undefined;
+      try {
+        return JSON.parse(result) as T;
+      } catch {
+        return undefined;
+      }
+    },
+    async set(value: T): Promise<void> {
+      await SecureStore.setItemAsync(STORAGE_KEY, JSON.stringify(value));
+    },
+    async clear(): Promise<void> {
+      await SecureStore.deleteItemAsync(STORAGE_KEY);
+    },
+  };
+}
+```
+
+</Tab>
+<Tab title="@solana/web3.js">
+
+Cached accounts hold their address as a `PublicKey`, which `JSON.stringify` flattens to a base58 string. Pass a reviver to `JSON.parse` to rebuild the instances.
+
 ```tsx
 import * as SecureStore from "expo-secure-store";
 import { Cache } from "@wallet-ui/react-native-web3js";
@@ -80,7 +155,7 @@ import { PublicKey, PublicKeyInitData } from "@solana/web3.js";
 const STORAGE_KEY = "authorization-cache";
 
 function cacheReviver(key: string, value: unknown) {
-  if (key === "publicKey") {
+  if (key === "address" || key === "publicKey") {
     return new PublicKey(value as PublicKeyInitData);
   }
   return value;
@@ -107,12 +182,51 @@ export function createSecureStoreCache<T>(): Cache<T> {
 }
 ```
 
-<Note>
-  The `cacheReviver` function is needed to properly deserialize `PublicKey`
-  objects from the cached JSON string.
-</Note>
+<Warning>
+  The reviver must cover `address`, not just the deprecated `publicKey` alias.
+  Miss it and `account.address` is restored as a plain string, so
+  `account.address.toBase58()` throws `TypeError: toBase58 is not a function`.
+</Warning>
+
+</Tab>
+</Tabs>
 
 ### Pass it to `MobileWalletProvider`
+
+<Tabs>
+<Tab title="@solana/kit">
+
+```tsx
+import {
+  createSolanaMainnet,
+  MobileWalletProvider,
+} from "@wallet-ui/react-native-kit";
+import { createSecureStoreCache } from "./secure-store-cache";
+
+const cluster = createSolanaMainnet({
+  url: "https://api.mainnet-beta.solana.com",
+});
+const secureCache = createSecureStoreCache();
+
+function App() {
+  return (
+    <MobileWalletProvider
+      cluster={cluster}
+      identity={{
+        name: "My App",
+        uri: "https://myapp.com",
+        icon: "favicon.ico",
+      }}
+      cache={secureCache}
+    >
+      {children}
+    </MobileWalletProvider>
+  );
+}
+```
+
+</Tab>
+<Tab title="@solana/web3.js">
 
 ```tsx
 import { MobileWalletProvider } from "@wallet-ui/react-native-web3js";
@@ -138,13 +252,16 @@ function App() {
 }
 ```
 
+</Tab>
+</Tabs>
+
 ---
 
 ## Using the bare MWA library
 
-<Accordion title="Manual caching with @solana-mobile/mobile-wallet-adapter-protocol-web3js">
+<Accordion title="Manual caching with the MWA protocol library">
 
-If you're using the lower-level `@solana-mobile/mobile-wallet-adapter-protocol-web3js` library directly (without `MobileWalletProvider`), you'll need to manage authorization caching yourself.
+If you're using the lower-level MWA protocol library directly (without `MobileWalletProvider`), you'll need to manage authorization caching yourself. The example below uses the `@solana/web3.js` wrapper; with the `@solana/kit` wrapper, cache `account.address` as a plain address string and drop the `PublicKey` conversions.
 
 ### Check for cached authorization
 
@@ -191,7 +308,7 @@ const [currentAccount, setCurrentAccount] = useState<{
 const handleConnectPress = useCallback(() => {
   transact(async (wallet) => {
     const { accounts, auth_token } = await wallet.authorize({
-      cluster: "devnet",
+      chain: "solana:devnet",
       identity: {
         name: "My amazing app",
       },

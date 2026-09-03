@@ -60,16 +60,17 @@ Two details matter for a correct check:
 - **Skip empty token accounts.** Transferring an SGT out of a wallet leaves the old token account open with a balance of `0`, so a wallet that once held an SGT will keep returning that account. Only a token account with a non-zero balance counts as current ownership.
 - **Return the mint address, not a boolean.** The [Anti-Sybil Example](#anti-sybil-example-in-app-rewards-claim) above requires recording the SGT's mint address, so the check should return it.
 
+The script below uses `@solana/kit` and the Token-2022 client. Install them first:
+
+```shell
+npm install @solana/kit @solana-program/token-2022
+```
+
 Here's an example script that returns the SGT's mint address if the wallet currently holds one, or `null` otherwise:
 
 ```js
-const { Connection, PublicKey } = require("@solana/web3.js");
-const {
-  unpackMint,
-  getMetadataPointerState,
-  getTokenGroupMemberState,
-  TOKEN_2022_PROGRAM_ID,
-} = require("@solana/spl-token");
+import { createSolanaRpc, unwrapOption } from "@solana/kit";
+import { fetchAllMaybeMint } from "@solana-program/token-2022";
 
 async function checkWalletForSGT(walletAddress) {
   const HELIUS_RPC_URL = `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`;
@@ -81,11 +82,12 @@ async function checkWalletForSGT(walletAddress) {
   const SGT_GROUP_MINT_ADDRESS = "GT22s89nU4iWFkNXj1Bw6uYhJJWDRPpShHt4Bk8f99Te";
 
   try {
-    const connection = new Connection(HELIUS_RPC_URL);
+    const rpc = createSolanaRpc(HELIUS_RPC_URL);
 
-    // Use getTokenAccountsByOwnerV2 with pagination
-    let allTokenAccounts = [];
-    let paginationKey = null;
+    // getTokenAccountsByOwnerV2 is a Helius extension rather than a standard
+    // RPC method, so call it over plain JSON-RPC with pagination.
+    const allTokenAccounts = [];
+    let paginationKey = undefined;
     let pageCount = 0;
 
     console.log(`Starting paginated fetch for wallet: ${walletAddress}`);
@@ -125,115 +127,77 @@ async function checkWalletForSGT(walletAddress) {
         throw new Error(`RPC error: ${data.error.message}`);
       }
 
-      const pageResults = data.result?.value.accounts || [];
+      const pageResults = data.result?.value.accounts ?? [];
       console.log(
         `Page ${pageCount}: Found ${pageResults.length} token accounts`,
       );
 
-      if (pageResults.length > 0) {
-        allTokenAccounts.push(...pageResults);
-      }
+      allTokenAccounts.push(...pageResults);
       paginationKey = data.result?.paginationKey;
-
-      // Log pagination info
-      if (data.result.totalResults) {
-        console.log(`Total results available: ${data.result.totalResults}`);
-      }
     } while (paginationKey); // Continue until no more pages
 
     console.log(
       `\nCompleted pagination: ${pageCount} pages, ${allTokenAccounts.length} total token accounts`,
     );
 
-    if (allTokenAccounts.length === 0) {
-      console.log("No Token-2022 accounts found for this wallet.");
-      return null;
-    }
-
     // Extract mint addresses from token accounts.
     // Skip token accounts with a zero balance: transferring an SGT out of a
     // wallet leaves the old token account open at a balance of 0, and it
     // must not count as current ownership.
-    const mintPubkeys = allTokenAccounts
-      .map((accountInfo) => {
-        try {
-          const info = accountInfo?.account?.data?.parsed?.info;
-          if (info?.mint && info.tokenAmount?.amount !== "0") {
-            return new PublicKey(info.mint);
-          } else {
-            return null;
-          }
-        } catch (error) {
-          return null;
-        }
-      })
-      .filter((mintPubkey) => mintPubkey !== null);
+    const mintAddresses = allTokenAccounts
+      .map((accountInfo) => accountInfo?.account?.data?.parsed?.info)
+      .filter((info) => info?.mint && info.tokenAmount?.amount !== "0")
+      .map((info) => info.mint);
 
-    console.log(`Extracted ${mintPubkeys.length} mint addresses`);
+    console.log(`Extracted ${mintAddresses.length} mint addresses`);
 
-    // Fetch all mint account data in batches of 100 to avoid RPC limits
+    // Fetch and decode mint accounts in batches of 100 to avoid RPC limits
     const BATCH_SIZE = 100;
-    const mintAccountInfos = [];
 
-    for (let i = 0; i < mintPubkeys.length; i += BATCH_SIZE) {
-      const batch = mintPubkeys.slice(i, i + BATCH_SIZE);
+    for (let i = 0; i < mintAddresses.length; i += BATCH_SIZE) {
+      const batch = mintAddresses.slice(i, i + BATCH_SIZE);
       console.log(
-        `Fetching mint info batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(mintPubkeys.length / BATCH_SIZE)}`,
+        `Fetching mint info batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(mintAddresses.length / BATCH_SIZE)}`,
       );
 
-      const batchResults = await connection.getMultipleAccountsInfo(batch);
-      mintAccountInfos.push(...batchResults);
-    }
+      const mints = await fetchAllMaybeMint(rpc, batch);
 
-    // Check each mint for SGT verification
-    console.log(
-      `Checking ${mintAccountInfos.length} mints for SGT verification...`,
-    );
+      for (const mint of mints) {
+        // Skip addresses that have no account data on chain
+        if (!mint.exists) continue;
 
-    for (let i = 0; i < mintAccountInfos.length; i++) {
-      const mintInfo = mintAccountInfos[i];
-      if (mintInfo) {
-        const mintPubkey = mintPubkeys[i];
-
-        try {
-          // Unpack the raw mint account data
-          const mint = unpackMint(mintPubkey, mintInfo, TOKEN_2022_PROGRAM_ID);
-          const mintAuthority = mint.mintAuthority?.toBase58();
-
-          const hasCorrectMintAuthority = mintAuthority === SGT_MINT_AUTHORITY;
-
-          // Check for correct SGT Metadata
-          const metadataPointer = getMetadataPointerState(mint);
-          const hasCorrectMetadata =
-            metadataPointer &&
-            metadataPointer.authority?.toBase58() === SGT_MINT_AUTHORITY &&
-            metadataPointer.metadataAddress?.toBase58() ===
-              SGT_METADATA_ADDRESS;
-
-          // Check for correct SGT Group Member
-          const tokenGroupMemberState = getTokenGroupMemberState(mint);
-          const hasCorrectGroupMember =
-            tokenGroupMemberState &&
-            tokenGroupMemberState.group?.toBase58() === SGT_GROUP_MINT_ADDRESS;
-
-          // If all extensions match and mint authority is correct, then it is an SGT
-          if (
-            hasCorrectMintAuthority &&
-            hasCorrectMetadata &&
-            hasCorrectGroupMember
-          ) {
-            const sgtMintAddress = mint.address.toBase58();
-            console.log(
-              `\nVERIFIED SGT FOUND: Wallet holds a verified SGT (${sgtMintAddress}).`,
-            );
-            return sgtMintAddress;
-          }
-        } catch (mintError) {
-          // Skip this mint if we can't unpack it
-          console.log(
-            `Warning: Could not unpack mint ${mintPubkey.toBase58()}: ${mintError.message}`,
-          );
+        // Check the mint authority
+        if (unwrapOption(mint.data.mintAuthority) !== SGT_MINT_AUTHORITY) {
           continue;
+        }
+
+        const extensions = unwrapOption(mint.data.extensions) ?? [];
+
+        // Check for correct SGT Metadata
+        const metadataPointer = extensions.find(
+          (ext) => ext.__kind === "MetadataPointer",
+        );
+        const hasCorrectMetadata =
+          metadataPointer !== undefined &&
+          unwrapOption(metadataPointer.authority) === SGT_MINT_AUTHORITY &&
+          unwrapOption(metadataPointer.metadataAddress) ===
+            SGT_METADATA_ADDRESS;
+
+        // Check for correct SGT Group Member
+        const groupMember = extensions.find(
+          (ext) => ext.__kind === "TokenGroupMember",
+        );
+        const hasCorrectGroupMember =
+          groupMember !== undefined &&
+          groupMember.group === SGT_GROUP_MINT_ADDRESS;
+
+        // If both extensions match and the mint authority is correct,
+        // then it is an SGT
+        if (hasCorrectMetadata && hasCorrectGroupMember) {
+          console.log(
+            `\nVERIFIED SGT FOUND: Wallet holds a verified SGT (${mint.address}).`,
+          );
+          return mint.address;
         }
       }
     }
