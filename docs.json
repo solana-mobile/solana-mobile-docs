@@ -438,6 +438,10 @@
       "destination": "https://solanamobile.radiant.nexus/"
     },
     {
+      "source": "/marketing/engaging-seeker-users",
+      "destination": "/solana-mobile-stack/seeker-genesis-token"
+    },
+    {
       "source": "/mobile-wallet-adapter/migrating-to-wallet-standard",
       "destination": "/recipes/mobile-wallet-adapter/migrating-to-wallet-standard"
     },
@@ -462,11 +466,67 @@
       "destination": "/recipes/solana-development/anchor-integration"
     },
     {
+      "source": "/react-native/building_transactions",
+      "destination": "/get-started/react-native/quickstart"
+    },
+    {
       "source": "/react-native/detecting-seeker-users",
       "destination": "/recipes/general/detecting-seeker-users"
     },
     {
+      "source": "/react-native/expo",
+      "destination": "/get-started/react-native/installation"
+    },
+    {
+      "source": "/react-native/expo-dapp-template",
+      "destination": "/get-started/react-native/create-solana-mobile-app"
+    },
+    {
+      "source": "/react-native/first_app_tutorial",
+      "destination": "/get-started/react-native/quickstart"
+    },
+    {
+      "source": "/react-native/hello_world_tutorial",
+      "destination": "/get-started/react-native/quickstart"
+    },
+    {
+      "source": "/react-native/making_rpc_requests",
+      "destination": "/get-started/react-native/setup"
+    },
+    {
+      "source": "/react-native/metaplex_integration",
+      "destination": "/recipes/overview"
+    },
+    {
+      "source": "/react-native/mobile_nft_minter_tutorial",
+      "destination": "/sample-apps/sample_app_overview"
+    },
+    {
+      "source": "/react-native/polyfill-guides/anchor",
+      "destination": "/recipes/solana-development/anchor-integration"
+    },
+    {
+      "source": "/react-native/polyfill-guides/polyfills",
+      "destination": "/get-started/react-native/installation"
+    },
+    {
+      "source": "/react-native/polyfill-guides/spl-token",
+      "destination": "/get-started/react-native/installation"
+    },
+    {
+      "source": "/react-native/polyfill-guides/web3-js",
+      "destination": "/get-started/react-native/installation"
+    },
+    {
       "source": "/react-native/quickstart",
+      "destination": "/get-started/react-native/create-solana-mobile-app"
+    },
+    {
+      "source": "/react-native/quickstart_legacy",
+      "destination": "/get-started/react-native/quickstart"
+    },
+    {
+      "source": "/react-native/react-native-scaffold",
       "destination": "/get-started/react-native/create-solana-mobile-app"
     },
     {
@@ -482,8 +542,16 @@
       "destination": "/get-started/react-native/invoke-mwa-sessions-directly"
     },
     {
+      "source": "/reference/overview",
+      "destination": "/get-started/overview"
+    },
+    {
       "source": "/reference/typescript/mobile-wallet-adapter",
       "destination": "/get-started/react-native/mobile-wallet-adapter"
+    },
+    {
+      "source": "/reference/typescript/web3js",
+      "destination": "/get-started/react-native/installation"
     },
     {
       "source": "/solana-mobile-stack/seeker-id",
