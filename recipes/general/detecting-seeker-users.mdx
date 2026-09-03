@@ -1,6 +1,6 @@
 ---
 title: "Detecting Seeker Users"
-description: "This guide outlines the two primary methods for identifying Seeker users within your React Native application. Choose the appropriate method based on your requirements and use case."
+description: "Identify Seeker users in your app, from a lightweight device check to on-chain ownership verification."
 ---
 
 import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
@@ -137,10 +137,10 @@ async function createSignInPayload() {
 Fetch the payload from your backend, then use Mobile Wallet Adapter to request the user to sign it:
 
 ```tsx expandable
-import { transact } from "@solana-mobile/mobile-wallet-adapter-protocol-web3js";
+import { transact } from "@solana-mobile/mobile-wallet-adapter-protocol-kit";
 
 const APP_IDENTITY = {
-  name: "Your React Native dApp",
+  name: "Your dApp",
   uri: "https://yourdapp.com",
   icon: "favicon.ico",
 };
@@ -152,7 +152,7 @@ async function signSIWSPayload() {
 
   const signInResult = await transact(async (wallet) => {
     const authorizationResult = await wallet.authorize({
-      cluster: "solana:mainnet",
+      chain: "solana:mainnet",
       identity: APP_IDENTITY,
       sign_in_payload: signInPayload,
     });
@@ -165,6 +165,13 @@ async function signSIWSPayload() {
   return { nonce: signInPayload.nonce, signInResult };
 }
 ```
+
+<Note>
+  This flow only authorizes and signs, so it uses no Solana library primitives.
+  Apps on `@solana/web3.js` can import `transact` from
+  `@solana-mobile/mobile-wallet-adapter-protocol-web3js` instead — the rest of
+  the code is unchanged.
+</Note>
 
 **Server-side: Verify the SIWS signature**
 
@@ -179,7 +186,7 @@ On success, `verifySIWS` returns the verified wallet address:
 ```tsx expandable
 // This happens on your backend server
 import { verifySignIn } from "@solana/wallet-standard-util";
-import { PublicKey } from "@solana/web3.js";
+import { getAddressDecoder } from "@solana/kit";
 
 const EXPECTED_DOMAIN = "yourdapp.com";
 
@@ -209,7 +216,7 @@ async function verifySIWS(nonce, signInResult): Promise<string | null> {
   if (publicKey.length !== 32) {
     return null;
   }
-  const walletAddress = new PublicKey(publicKey).toBase58();
+  const walletAddress = getAddressDecoder().decode(publicKey);
   const serialisedOutput = {
     account: {
       address: walletAddress,
