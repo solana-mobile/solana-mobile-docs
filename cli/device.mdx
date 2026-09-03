@@ -106,4 +106,67 @@ bunx solana-mobile@latest device open http://localhost:3000
 | `--no-forward`      | Do not create an adb reverse for localhost URLs |
 | `-v, --verbose`     | Explain URL and port forwarding decisions       |
 
+## device tune
+
+Apply agent-friendly tweaks to a connected device or emulator — the animations, first-run dialogs, lock screen, and notifications that get in the way of automation. With no target it picks the only connected device, or prompts when several are connected:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest device tune
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest device tune
+```
+
+```bash bun
+bunx solana-mobile@latest device tune
+```
+
+</CodeGroup>
+
+Every tweak starts selected in the picker, so `Enter` applies the lot. Pass `-y` to skip the picker for unattended runs, and `--all` to tune every connected device:
+
+<CodeGroup>
+
+```bash npm
+npx solana-mobile@latest device tune --all --yes
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest device tune --all --yes
+```
+
+```bash bun
+bunx solana-mobile@latest device tune --all --yes
+```
+
+</CodeGroup>
+
+Physical devices are accepted as well as emulators. A device or Android version that rejects a tweak — a phone with a screen lock keeps its lock screen, for instance — is reported as skipped instead of failing the run.
+
+### Tweaks
+
+| Tweak                      | Description                                                              |
+| -------------------------- | ------------------------------------------------------------------------ |
+| `animations-off`           | Disable window, transition, and animator animations                      |
+| `autofill-off`             | Disable the autofill service and its prompts                             |
+| `chrome-notifications-off` | Silence Chrome notifications and its permission prompt                   |
+| `chrome-quiet`             | Skip Chrome first-run sign-in and disable the new-tab feed and shortcuts |
+| `keyboard-feedback-off`    | Disable touch sounds and haptic feedback                                 |
+| `lockscreen-off`           | Disable the lock screen                                                  |
+| `provisioning-complete`    | Mark device setup and provisioning as complete                           |
+| `screen-awake`             | Keep the screen on while charging and extend the screen timeout          |
+| `stylus-handwriting`       | Disable stylus handwriting and its onboarding popup                      |
+| `system-notifications-off` | Silence system, Play Store, and Play services notifications              |
+
+### Options
+
+| Option              | Description                         |
+| ------------------- | ----------------------------------- |
+| `--all`             | Tune every connected device         |
+| `--device <serial>` | Target a device serial              |
+| `-y, --yes`         | Apply every tweak without prompting |
+
 <FooterDisclaimer />

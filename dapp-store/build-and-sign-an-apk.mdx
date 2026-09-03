@@ -150,6 +150,12 @@ apksigner verify --print-certs app-release.apk
 
 [Progressive Web Apps (PWAs)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps) can be published on the dApp Store by wrapping them in a [Trusted Web Activity (TWA)](https://developer.chrome.com/docs/android/trusted-web-activity). TWAs use Chrome to render your web app in a full-screen, native-like experience.
 
+<Tip>
+  The Solana Mobile CLI can wrap a web app in a WebView shell instead, which
+  skips the Digital Asset Links setup a TWA requires. See
+  [`webshell`](/cli/webshell).
+</Tip>
+
 ### Prerequisite
 
 A PWA [web manifest](https://developer.mozilla.org/en-US/docs/Web/Manifest) hosted at `https://your-pwa-url.com/manifest.json`.

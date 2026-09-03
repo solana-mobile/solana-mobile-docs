@@ -28,19 +28,19 @@ bunx solana-mobile@latest emulator create --start
 
 </CodeGroup>
 
-| Option                     | Description                                  |
-| -------------------------- | -------------------------------------------- |
-| `--data-size <size>`       | Data partition size                          |
-| `--device <device>`        | Android device profile id                    |
-| `--no-tune`                | Skip applying emulator tweaks after starting |
-| `--profile <profile>`      | Solana Mobile emulator profile               |
-| `--ram-mb <megabytes>`     | RAM size in MB                               |
-| `--sdcard-size <size>`     | SD card size                                 |
-| `--sdk-root <path>`        | Android SDK root                             |
-| `--start`                  | Start the emulator after creating it         |
-| `--system-image <package>` | Android system image package                 |
-| `-v, --verbose`            | Verbose output                               |
-| `--vm-heap-mb <megabytes>` | VM heap size in MB                           |
+| Option                     | Description                                               |
+| -------------------------- | --------------------------------------------------------- |
+| `--data-size <size>`       | Data partition size                                       |
+| `--device <device>`        | Android device profile id                                 |
+| `--profile <profile>`      | Solana Mobile emulator profile                            |
+| `--ram-mb <megabytes>`     | RAM size in MB                                            |
+| `--sdcard-size <size>`     | SD card size                                              |
+| `--sdk-root <path>`        | Android SDK root                                          |
+| `--start`                  | Start the emulator after creating it                      |
+| `--system-image <package>` | Android system image package                              |
+| `--tune`                   | Apply emulator tweaks after starting (requires `--start`) |
+| `-v, --verbose`            | Verbose output                                            |
+| `--vm-heap-mb <megabytes>` | VM heap size in MB                                        |
 
 ## emulator delete
 
@@ -61,6 +61,10 @@ bunx solana-mobile@latest emulator delete my-emulator
 ```
 
 </CodeGroup>
+
+| Option              | Description      |
+| ------------------- | ---------------- |
+| `--sdk-root <path>` | Android SDK root |
 
 ## emulator images
 
@@ -86,7 +90,7 @@ bunx solana-mobile@latest emulator images install
 | ------------------- | ------------------------------------------------- |
 | `--all`             | Show all available system images (`install` only) |
 | `--sdk-root <path>` | Android SDK root                                  |
-| `-v, --verbose`     | Verbose output                                    |
+| `-v, --verbose`     | Verbose output (`install` and `delete` only)      |
 
 ## emulator list
 
@@ -110,7 +114,7 @@ bunx solana-mobile@latest emulator list
 
 ## emulator start
 
-Start an Android emulator. Run it without a name to pick one interactively. After boot, the CLI applies the [`tune`](#emulator-tune) tweaks automatically:
+Start an Android emulator. Run it without a name to pick one interactively:
 
 <CodeGroup>
 
@@ -128,10 +132,10 @@ bunx solana-mobile@latest emulator start my-emulator
 
 </CodeGroup>
 
-| Option              | Description                                  |
-| ------------------- | -------------------------------------------- |
-| `--no-tune`         | Skip applying emulator tweaks after starting |
-| `--sdk-root <path>` | Android SDK root                             |
+| Option              | Description                          |
+| ------------------- | ------------------------------------ |
+| `--sdk-root <path>` | Android SDK root                     |
+| `--tune`            | Apply emulator tweaks after starting |
 
 ## emulator status
 
@@ -175,7 +179,7 @@ bunx solana-mobile@latest emulator stop my-emulator
 
 ## emulator tune
 
-Apply agent-friendly tweaks to a running Android emulator: it disables animations, first-run dialogs, lock screen, and boot notifications that get in the way of automation. `emulator start` and `emulator create --start` apply these tweaks automatically after boot (skip with `--no-tune`); run `tune` to apply them to an emulator that is already running:
+Apply the [agent-friendly tweaks](/cli/device#device-tune) to a running Android emulator, by name or serial:
 
 <CodeGroup>
 
@@ -193,6 +197,12 @@ bunx solana-mobile@latest emulator tune
 
 </CodeGroup>
 
-Tweaks only apply to emulators — physical device serials are refused.
+Tuning is opt-in: `emulator start` and `emulator create --start` only apply the tweaks when you pass `--tune`, which is non-interactive and applies all of them. Running `tune` on its own asks which tweaks to apply, with every one pre-selected so `Enter` applies the lot; `-y` skips the picker.
+
+Physical device serials are refused here — use [`device tune`](/cli/device#device-tune) for those.
+
+| Option      | Description                         |
+| ----------- | ----------------------------------- |
+| `-y, --yes` | Apply every tweak without prompting |
 
 <FooterDisclaimer />
