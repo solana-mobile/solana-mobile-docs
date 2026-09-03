@@ -1,6 +1,6 @@
 ---
 title: "Installation"
-description: "Install the @wallet-ui/react-native-web3js library to integrate Mobile Wallet Adapter into your React Native app."
+description: "Install Wallet UI to integrate Mobile Wallet Adapter into your app."
 sidebarTitle: "Installation"
 ---
 
@@ -13,26 +13,101 @@ import { Button } from "/snippets/button.mdx";
 - A React Native (Expo) project set up for Android development. See the [Environment Setup](/get-started/development-setup) guide.
 - An MWA-compatible wallet installed on your device or emulator. See [Install a development wallet](/get-started/development-setup#install-a-development-wallet-app).
 
+## Choose a Solana library
+
+Wallet UI ships one package per Solana client library. Pick one and stay on the matching tab through the rest of this guide.
+
+- [**`@wallet-ui/react-native-kit`**](https://github.com/wallet-ui/wallet-ui) — use this for new apps. Built on [`@solana/kit`](https://github.com/anza-xyz/kit).
+- [**`@wallet-ui/react-native-web3js`**](https://github.com/wallet-ui/wallet-ui) — use this when your app already depends on `@solana/web3.js` v1.
+
+Both packages expose the same `MobileWalletProvider` and `useMobileWallet` API. Only the Solana primitives they hand you differ.
+
 ## Install dependencies
 
+<Tabs>
+<Tab title="@solana/kit">
+
 <CodeGroup>
+
 ```bash npm
-npm install @wallet-ui/react-native-web3js react-native-quick-crypto @solana/web3.js expo-dev-client
+npm install \
+  @wallet-ui/react-native-kit \
+  @solana/kit \
+  @solana-program/memo \
+  react-native-quick-crypto \
+  react-native-nitro-modules \
+  expo-dev-client
 ```
 
 ```bash yarn
-yarn add @wallet-ui/react-native-web3js react-native-quick-crypto @solana/web3.js expo-dev-client
+yarn add \
+  @wallet-ui/react-native-kit \
+  @solana/kit \
+  @solana-program/memo \
+  react-native-quick-crypto \
+  react-native-nitro-modules \
+  expo-dev-client
 ```
 
 ```bash pnpm
-pnpm add @wallet-ui/react-native-web3js react-native-quick-crypto @solana/web3.js expo-dev-client
+pnpm add \
+  @wallet-ui/react-native-kit \
+  @solana/kit \
+  @solana-program/memo \
+  react-native-quick-crypto \
+  react-native-nitro-modules \
+  expo-dev-client
 ```
 
 </CodeGroup>
 
+`@solana-program/memo` is only needed for the transaction example in the [Quickstart](/get-started/react-native/quickstart). Swap it for whichever `@solana-program/*` client your app actually builds instructions with.
+
+</Tab>
+<Tab title="@solana/web3.js">
+
+<CodeGroup>
+
+```bash npm
+npm install \
+  @wallet-ui/react-native-web3js \
+  @solana/web3.js \
+  @solana/spl-memo \
+  react-native-quick-crypto \
+  react-native-nitro-modules \
+  expo-dev-client
+```
+
+```bash yarn
+yarn add \
+  @wallet-ui/react-native-web3js \
+  @solana/web3.js \
+  @solana/spl-memo \
+  react-native-quick-crypto \
+  react-native-nitro-modules \
+  expo-dev-client
+```
+
+```bash pnpm
+pnpm add \
+  @wallet-ui/react-native-web3js \
+  @solana/web3.js \
+  @solana/spl-memo \
+  react-native-quick-crypto \
+  react-native-nitro-modules \
+  expo-dev-client
+```
+
+</CodeGroup>
+
+`@solana/spl-memo` is only needed for the transaction example in the [Quickstart](/get-started/react-native/quickstart). Swap it for whichever instruction builders your app actually uses.
+
+</Tab>
+</Tabs>
+
 ## Configure polyfills
 
-The `react-native-quick-crypto` library provides a polyfill for the `crypto` module needed by `@solana/web3.js`.
+Solana client libraries expect Node and browser APIs that React Native does not ship. The `react-native-quick-crypto` library provides the `crypto` polyfill they need, and it is the same for both libraries.
 
 **1. Create a `polyfill.js` file in your project root:**
 
@@ -57,8 +132,8 @@ import "expo-router/entry"; // If using Expo Router
 ```
 
 <Warning>
-  The polyfill must be imported **before** any other code that uses
-  `@solana/web3.js`.
+  The polyfill must be imported **before** any other code that uses a Solana
+  client library.
 </Warning>
 
 ## Custom Development Build
