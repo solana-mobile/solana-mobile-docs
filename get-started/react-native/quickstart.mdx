@@ -8,9 +8,31 @@ import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
 
 This page demonstrates how to use each method from the `useMobileWallet` hook. Make sure you have completed the [Installation](/get-started/react-native/installation) and [Setup](/get-started/react-native/setup) steps first.
 
+Stay on the tab for the Solana library you installed.
+
 ## Connect / Disconnect
 
-Use `connect` to initiate a wallet connection and `disconnect` to end it. The `account` field contains the connected wallet's public key.
+Use `connect` to initiate a wallet connection and `disconnect` to end it. The `account` field holds the selected wallet account.
+
+<Tabs>
+<Tab title="@solana/kit">
+
+```tsx
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
+
+function ConnectButton() {
+  const { account, connect, disconnect } = useMobileWallet();
+
+  if (account) {
+    return <Button title="Disconnect" onPress={disconnect} />;
+  }
+
+  return <Button title="Connect Wallet" onPress={connect} />;
+}
+```
+
+</Tab>
+<Tab title="@solana/web3.js">
 
 ```tsx
 import { useMobileWallet } from "@wallet-ui/react-native-web3js";
@@ -26,20 +48,25 @@ function ConnectButton() {
 }
 ```
 
+</Tab>
+</Tabs>
+
 ## Sign Message
 
-Use `signMessage` to request the wallet to sign an arbitrary byte payload. This is useful for off-chain signature verification.
+Use `signMessages` to request the wallet to sign an arbitrary byte payload. This is useful for off-chain signature verification.
+
+<Tabs>
+<Tab title="@solana/kit">
 
 ```tsx
-import { useMobileWallet } from "@wallet-ui/react-native-web3js";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 
 function SignMessageButton() {
-  const { signMessage } = useMobileWallet();
+  const { signMessages } = useMobileWallet();
 
   const handleSignMessage = async () => {
-    const message = "Verify this message";
-    const messageBytes = new TextEncoder().encode(message);
-    const signature = await signMessage(messageBytes);
+    const messageBytes = new TextEncoder().encode("Verify this message");
+    const signature = await signMessages(messageBytes);
     console.log("Signature:", signature);
   };
 
@@ -47,62 +74,178 @@ function SignMessageButton() {
 }
 ```
 
-## Sign In with Solana (SIWS)
-
-Use `signIn` to connect to a wallet and verify ownership in a single step. This combines authorization and message signing into one user interaction.
+</Tab>
+<Tab title="@solana/web3.js">
 
 ```tsx
 import { useMobileWallet } from "@wallet-ui/react-native-web3js";
 
+function SignMessageButton() {
+  const { signMessages } = useMobileWallet();
+
+  const handleSignMessage = async () => {
+    const messageBytes = new TextEncoder().encode("Verify this message");
+    const signature = await signMessages(messageBytes);
+    console.log("Signature:", signature);
+  };
+
+  return <Button title="Sign Message" onPress={handleSignMessage} />;
+}
+```
+
+</Tab>
+</Tabs>
+
+<Note>
+  `signMessages` takes bytes, not a string. Use `TextEncoder` to encode text — a
+  base64 helper such as `toUint8Array` will decode your text as base64 and sign
+  the wrong payload.
+</Note>
+
+## Sign In with Solana (SIWS)
+
+Use `signIn` to connect to a wallet and verify ownership in a single step. This combines authorization and message signing into one user interaction. Read the account from the returned result — the hook's `account` is not updated until the next render.
+
+<Tabs>
+<Tab title="@solana/kit">
+
+```tsx
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
+
 function SignInButton() {
-  const { account, signIn } = useMobileWallet();
+  const { account, chain, identity, signIn } = useMobileWallet();
 
   const handleSignIn = async () => {
-    await signIn({
+    const result = await signIn({
+      address: account?.address,
+      chainId: chain,
       domain: "your-app-domain.com",
       statement: "Sign in to Your App",
+      uri: identity.uri,
     });
-    console.log("Signed in:", account?.address);
+    console.log("Signed in:", result.account.address);
   };
 
   return <Button title="Sign In" onPress={handleSignIn} />;
 }
 ```
 
-## Sign and Send Transaction
-
-Use `signAndSendTransaction` to request the wallet to sign a transaction and submit it to the Solana network.
+</Tab>
+<Tab title="@solana/web3.js">
 
 ```tsx
 import { useMobileWallet } from "@wallet-ui/react-native-web3js";
-import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+
+function SignInButton() {
+  const { account, chain, identity, signIn } = useMobileWallet();
+
+  const handleSignIn = async () => {
+    const result = await signIn({
+      address: account?.address.toString(),
+      chainId: chain,
+      domain: "your-app-domain.com",
+      statement: "Sign in to Your App",
+      uri: identity.uri,
+    });
+    console.log("Signed in:", result.account.address.toString());
+  };
+
+  return <Button title="Sign In" onPress={handleSignIn} />;
+}
+```
+
+</Tab>
+</Tabs>
+
+<Note>
+  `signIn` works whether or not the user is already connected. Omit `address` to
+  let the wallet pick the account and sign in as part of the same prompt.
+</Note>
+
+## Sign and Send Transaction
+
+Request the wallet to sign a transaction and submit it to the Solana network. Both examples send a memo instruction — swap it for whichever instructions your app builds.
+
+<Tabs>
+<Tab title="@solana/kit">
+
+`sendTransactions` takes instructions and handles fetching the blockhash, compiling the transaction, signing, and sending.
+
+```tsx
+import { getAddMemoInstruction } from "@solana-program/memo";
+import { Instruction } from "@solana/kit";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 
 function SendTransactionButton() {
-  const { account, signAndSendTransaction, connection } = useMobileWallet();
+  const { sendTransactions } = useMobileWallet();
 
   const handleSendTransaction = async () => {
-    if (!account) return;
+    const instructions: Instruction[] = [
+      getAddMemoInstruction({ memo: "gm from Mobile Wallet Adapter" }),
+    ];
 
-    const { blockhash } = await connection.getLatestBlockhash();
-
-    const transaction = new Transaction({
-      recentBlockhash: blockhash,
-      feePayer: new PublicKey(account.address),
-    }).add(
-      SystemProgram.transfer({
-        fromPubkey: new PublicKey(account.address),
-        toPubkey: new PublicKey("11111111111111111111111111111111"),
-        lamports: 1_000_000,
-      }),
-    );
-
-    const signature = await signAndSendTransaction(transaction);
+    const signature = await sendTransactions(instructions);
     console.log("Transaction signature:", signature);
   };
 
   return <Button title="Send Transaction" onPress={handleSendTransaction} />;
 }
 ```
+
+</Tab>
+<Tab title="@solana/web3.js">
+
+`signAndSendTransactions` takes a built transaction plus the `minContextSlot` the blockhash was fetched at, so compile the transaction yourself.
+
+```tsx
+import { createMemoInstruction } from "@solana/spl-memo";
+import { TransactionMessage, VersionedTransaction } from "@solana/web3.js";
+import { useMobileWallet } from "@wallet-ui/react-native-web3js";
+
+function SendTransactionButton() {
+  const { account, connection, signAndSendTransactions } = useMobileWallet();
+
+  const handleSendTransaction = async () => {
+    if (!account) return;
+
+    const {
+      context: { slot: minContextSlot },
+      value: latestBlockhash,
+    } = await connection.getLatestBlockhashAndContext();
+
+    const message = new TransactionMessage({
+      payerKey: account.address,
+      recentBlockhash: latestBlockhash.blockhash,
+      instructions: [createMemoInstruction("gm from Mobile Wallet Adapter")],
+    }).compileToLegacyMessage();
+
+    const transaction = new VersionedTransaction(message);
+
+    const signature = await signAndSendTransactions(
+      transaction,
+      minContextSlot,
+    );
+
+    await connection.confirmTransaction(
+      { signature, ...latestBlockhash },
+      "confirmed",
+    );
+
+    console.log("Transaction signature:", signature);
+  };
+
+  return <Button title="Send Transaction" onPress={handleSendTransaction} />;
+}
+```
+
+</Tab>
+</Tabs>
+
+<Warning>
+  `signAndSendTransactions` requires `minContextSlot`. Fetch the blockhash with
+  `getLatestBlockhashAndContext()` so you have the slot to pass along, rather
+  than `getLatestBlockhash()`.
+</Warning>
 
 ## Next steps
 
