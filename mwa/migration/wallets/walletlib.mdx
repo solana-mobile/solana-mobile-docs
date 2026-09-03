@@ -75,7 +75,7 @@ New parameters:
 
 - `authToken`: An optional `authToken` where if provided, the wallet should attempt to reauthorize the session with it.
 - `addresses`: An optional list of base64 encoded account addresses that the dapp wishes to be included in the authorization scope.
-- `signInPayload`: An object containing the payload portion of a [Sign In With Solana message](https://siws.web3auth.io/spec).
+- `signInPayload`: An object containing the payload portion of a [Sign In With Solana message](https://github.com/phantom/sign-in-with-solana).
 - `chain`: A [chain identifier](https://solana-mobile.github.io/mobile-wallet-adapter/spec/spec.html#chain-identifiers) to distinguish the requested blockchain network. Replaces the deprecated `cluster` parameter.
   - Supported Solana network chains: `solana:mainnet`, `solana:testnet`, and `solana:devnet`.
 - `features`: An array of [feature identifiers](https://solana-mobile.github.io/mobile-wallet-adapter/spec/spec.html#feature-identifiers), representing features requested by the client.
@@ -87,7 +87,7 @@ to handle this case. This aims to replace the `reauthorize` RPC request and redu
 
 #### Parameter: Sign In With Solana
 
-An optional object containing the payload portion of a [Sign In With Solana message](https://siws.web3auth.io/spec).
+An optional object containing the payload portion of a [Sign In With Solana message](https://github.com/phantom/sign-in-with-solana).
 
 If present, the wallet should present the SIWS message to the user and, if approved, include a `SignInResult` object in the `AuthorizationResult` response to the dapp endpoint.
 
