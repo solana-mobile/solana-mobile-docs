@@ -184,22 +184,31 @@ Apply the [agent-friendly tweaks](/cli/device#device-tune) to a running Android 
 <CodeGroup>
 
 ```bash npm
-npx solana-mobile@latest emulator tune
+npx solana-mobile@latest emulator tune my-emulator
 ```
 
 ```bash pnpm
-pnpm dlx solana-mobile@latest emulator tune
+pnpm dlx solana-mobile@latest emulator tune my-emulator
 ```
 
 ```bash bun
-bunx solana-mobile@latest emulator tune
+bunx solana-mobile@latest emulator tune my-emulator
 ```
 
 </CodeGroup>
 
-Tuning is opt-in: `emulator start` and `emulator create --start` only apply the tweaks when you pass `--tune`, which is non-interactive and applies all of them. Running `tune` on its own asks which tweaks to apply, with every one pre-selected so `Enter` applies the lot; `-y` skips the picker.
+Tuning is opt-in: `emulator start` and `emulator create --start` only apply the tweaks when you pass `--tune`, which is non-interactive and applies all of them. Running `tune` on its own asks which tweaks to apply, with every one pre-selected so `Enter` applies the lot; `-y` skips that question.
 
-Physical device serials are refused here — use [`device tune`](/cli/device#device-tune) for those.
+<Warning>
+  Name the emulator in a script. Unlike [`device
+  tune`](/cli/device#device-tune), `emulator tune` has no single-candidate
+  shortcut: with no name or serial it opens an emulator picker whenever any
+  emulator is running, one or many, and `-y` does not suppress it — that flag
+  skips the tweak question only. With no emulator running it prints a hint and
+  exits without tuning.
+</Warning>
+
+A name matching no running emulator is an error, and one matching more than one asks you to pass a serial instead. Physical device serials are refused here — use [`device tune`](/cli/device#device-tune) for those, which does fall back to the only connected device and takes `--device` or `--all`.
 
 | Option      | Description                         |
 | ----------- | ----------------------------------- |
