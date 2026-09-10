@@ -136,7 +136,7 @@ The end to end procedure of minting a photo NFT roughly follows these steps:
   <Step>Select a photo and upload it to a storage provider.</Step>
   <Step>
     Upload a JSON object containing metadata that conforms to the [Metaplex NFT
-    Standard](https://docs.metaplex.com/programs/token-metadata/token-standard#the-non-fungible-standard),
+    Standard](https://www.metaplex.com/docs/smart-contracts/token-metadata/token-standard),
     to a storage provider.
   </Step>
   <Step>
@@ -249,7 +249,7 @@ View an [example](https://ipfs.io/ipfs/bafkreicdv4jt7oaah73kvjfnm4f2yd5klbnyehlk
 
 ### Uploading the metadata
 
-Next, we need to construct a metadata object that conforms to the [Metaplex NFT Standard](https://docs.metaplex.com/programs/token-metadata/token-standard#the-non-fungible-standard), then
+Next, we need to construct a metadata object that conforms to the [Metaplex NFT Standard](https://www.metaplex.com/docs/smart-contracts/token-metadata/token-standard), then
 upload it to the same `/upload` endpoint.
 
 Metadata fields:
@@ -376,10 +376,10 @@ const { metaplex } = useMetaplex(connection, selectedAccount, authorizeSession);
 
 ### Create the NFT
 
-With the `metaplex` instance, we can now access the `nfts()` module that provides [a collection of functions](https://docs.metaplex.com/programs/token-metadata/getting-started#javascript-sdk) that
+With the `metaplex` instance, we can now access the `nfts()` module that provides [a collection of functions](https://github.com/metaplex-foundation/js) that
 make it simple to interact with on chain programs and submit transactions.
 
-To mint an NFT, call the `create` function which takes in a JSON object corresponding to the [Token Metadata Standard](https://docs.metaplex.com/programs/token-metadata/changelog/v1.0#token-metadata-program).
+To mint an NFT, call the `create` function which takes in a JSON object corresponding to the [Token Metadata Standard](https://www.metaplex.com/docs/smart-contracts/token-metadata/token-standard).
 
 This will prompt the user to sign a transaction using MWA, then submit the transaction to the specified RPC.
 
