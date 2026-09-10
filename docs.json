@@ -314,6 +314,22 @@
   },
   "redirects": [
     {
+      "source": "/android-native/overview",
+      "destination": "/get-started/kotlin/installation"
+    },
+    {
+      "source": "/android-native/quickstart",
+      "destination": "/get-started/kotlin/quickstart"
+    },
+    {
+      "source": "/android-native/setup",
+      "destination": "/get-started/kotlin/installation"
+    },
+    {
+      "source": "/android-native/using-anchor-programs",
+      "destination": "/recipes/solana-development/using-anchor-programs"
+    },
+    {
       "source": "/blog/ios-wallet-signing",
       "destination": "/recipes/mobile-wallet-adapter/wallet-signing-on-ios"
     },
@@ -426,12 +442,36 @@
       "destination": "/get-started/flutter/overview"
     },
     {
+      "source": "/getting-started/chapter2-preorder-token",
+      "destination": "/solana-mobile-stack/seeker-genesis-token"
+    },
+    {
       "source": "/getting-started/development-setup",
       "destination": "/get-started/development-setup"
     },
     {
+      "source": "/getting-started/intro",
+      "destination": "/get-started/overview"
+    },
+    {
+      "source": "/getting-started/introduction-to-solana",
+      "destination": "/get-started/overview"
+    },
+    {
       "source": "/getting-started/mobile-dapp-architecture",
       "destination": "/developers/mobile-wallet-adapter-deep-dive"
+    },
+    {
+      "source": "/getting-started/overview",
+      "destination": "/solana-mobile-stack/overview"
+    },
+    {
+      "source": "/getting-started/saga-genesis-token",
+      "destination": "/marketing/engaging-saga-users"
+    },
+    {
+      "source": "/getting-started/web3-and-mobile",
+      "destination": "/developers/mobile-development-frameworks"
     },
     {
       "source": "/hackathon",
@@ -502,6 +542,10 @@
       "destination": "/sample-apps/sample_app_overview"
     },
     {
+      "source": "/react-native/overview",
+      "destination": "/get-started/react-native/installation"
+    },
+    {
       "source": "/react-native/polyfill-guides/anchor",
       "destination": "/recipes/solana-development/anchor-integration"
     },
@@ -530,6 +574,10 @@
       "destination": "/get-started/react-native/create-solana-mobile-app"
     },
     {
+      "source": "/react-native/setup",
+      "destination": "/get-started/development-setup"
+    },
+    {
       "source": "/react-native/storing_mwa_auth",
       "destination": "/recipes/mobile-wallet-adapter/caching-wallet-authorization"
     },
@@ -540,6 +588,10 @@
     {
       "source": "/react-native/using_mobile_wallet_adapter",
       "destination": "/get-started/react-native/invoke-mwa-sessions-directly"
+    },
+    {
+      "source": "/react-native/wallet_ui_mobile_wallet_adapter",
+      "destination": "/get-started/react-native/installation"
     },
     {
       "source": "/reference/overview",
