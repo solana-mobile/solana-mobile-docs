@@ -33,7 +33,7 @@ The Wallet Standard package pulls in the rest of the SDK transitively. `@wallet-
 
 ## Relay URL
 
-Seeker Connect carries its wallet sessions over a Nostr relay. Set `relayDomain` to the relay domain below — accept the terms to reveal it, then drop it into the `registerSeekerConnect` call in the next step.
+Seeker Connect utilizes Mobile Wallet Adapters extended remote communication protocol over a Nostr relay. Any Nostr relay that supports public access and ephemeral events can be used. Solana Mobile provides a Nostr relay that satifies these requirments and free to use. Use of the Solana Mobile Nostr relay requires agreement to our terms. 
 
 <RelayUrl />
 
@@ -50,7 +50,7 @@ import { registerSeekerConnect } from "@solana-mobile/seeker-connect-wallet-stan
 
 registerSeekerConnect({
   identity: { name: "My App", uri: window.location.origin, icon: "/icon.png" },
-  relayDomain: "<relay-domain>", // the Relay URL revealed above
+  relayDomain: "<relay-domain>",
 });
 ```
 
