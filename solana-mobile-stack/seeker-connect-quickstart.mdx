@@ -1,0 +1,91 @@
+---
+title: "Quickstart"
+sidebarTitle: "Quickstart"
+description: "Install Seeker Connect and add a branded wallet connect flow to your app."
+---
+
+import { RelayUrl } from "/snippets/relay-url.mdx";
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
+Connect your app directly to a Solana Mobile certified device's own wallet. The web SDK is available today; React Native and Android are planned.
+
+Most apps use the Wallet Standard entry point, which discovers and drives Seeker Connect like any other [Wallet Standard](https://github.com/wallet-standard/wallet-standard) wallet — no Seeker-specific code in your connect flow.
+
+## Install
+
+<CodeGroup>
+
+```bash npm
+npm install @solana-mobile/seeker-connect-wallet-standard @wallet-standard/app @wallet-standard/features
+```
+
+```bash pnpm
+pnpm add @solana-mobile/seeker-connect-wallet-standard @wallet-standard/app @wallet-standard/features
+```
+
+```bash bun
+bun add @solana-mobile/seeker-connect-wallet-standard @wallet-standard/app @wallet-standard/features
+```
+
+</CodeGroup>
+
+The Wallet Standard package pulls in the rest of the SDK transitively. `@wallet-standard/app` and `@wallet-standard/features` are the registry helpers most Solana apps already have.
+
+## Relay URL
+
+Seeker Connect carries its wallet sessions over a Nostr relay. Set `relayDomain` to the relay domain below — accept the terms to reveal it, then drop it into the `registerSeekerConnect` call in the next step.
+
+<RelayUrl />
+
+## Quick start
+
+<Steps>
+
+<Step title="Register Seeker Connect">
+
+Call `registerSeekerConnect` once, early in your app's lifecycle. It adds the wallet to the page's Wallet Standard registry.
+
+```ts
+import { registerSeekerConnect } from "@solana-mobile/seeker-connect-wallet-standard";
+
+registerSeekerConnect({
+  identity: { name: "My App", uri: window.location.origin, icon: "/icon.png" },
+  relayDomain: "<relay-domain>", // the Relay URL revealed above
+});
+```
+
+</Step>
+
+<Step title="Discover the wallet">
+
+Find Seeker Connect like any other Wallet Standard wallet.
+
+```ts
+import { getWallets } from "@wallet-standard/app";
+import { SeekerConnectWalletName } from "@solana-mobile/seeker-connect-wallet-standard";
+
+const wallet = getWallets()
+  .get()
+  .find((w) => w.name === SeekerConnectWalletName);
+```
+
+</Step>
+
+<Step title="Connect">
+
+`connect()` launches the wallet for user consent on the first connection, then returns the authorized accounts.
+
+```ts
+import { StandardConnect } from "@wallet-standard/features";
+
+const { accounts } = await wallet.features[StandardConnect].connect();
+console.log("connected as", accounts[0]?.address);
+```
+
+</Step>
+
+</Steps>
+
+"Connected" means your app holds a wallet-issued authorization token — there is no long-lived transport. Each interaction runs in its own short-lived session and silently reauthorizes with the cached token, so the user is not re-prompted for consent.
+
+<FooterDisclaimer />
