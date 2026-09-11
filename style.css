@@ -23,3 +23,20 @@ li[id="topbar-cta-button"] > a > div > svg > path {
 .dark li[id="topbar-cta-button"] > a > div > span {
   color: #000000 !important;
 }
+
+/* CCPA "Your Privacy Choices" footer control (see privacy-choices.js).
+   The link keeps the footer's own styling; this only seats the icon beside it. */
+.ot-sdk-show-settings {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.5rem;
+  max-width: none !important;
+  overflow: visible !important;
+  white-space: nowrap;
+}
+.ot-sdk-show-settings .ccpa-opt-out-icon {
+  flex: none;
+  height: 14px;
+  margin: 0;
+  width: 30px;
+}
