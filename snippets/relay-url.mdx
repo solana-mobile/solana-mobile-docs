@@ -38,7 +38,25 @@ const terms = [
 "You will not share this URL with unauthorized individuals.",
 "You understand that your activities may be logged and monitored.",
 "You understand that misuse of this resource may result in termination of access and potential legal consequences.",
-];
+
+<>
+  You have read and agree to Solana Mobile's Website{" "}
+  <a
+    className="underline underline-offset-2"
+    href="https://legal.solanamobile.com/tos-homepage-web"
+  >
+    Terms of Use
+  </a>
+  , and acknowledge its{" "}
+  <a
+    className="underline underline-offset-2"
+    href="https://legal.solanamobile.com/privacy-policy-homepage-web"
+  >
+    Privacy Policy
+  </a>
+  .
+</>
+, ];
 
 return (
 
@@ -70,8 +88,8 @@ By accessing the relay URL, you agree to the following terms and
 conditions:
 </p>
 <ol className="m-0 flex list-decimal flex-col gap-1.5 pl-5 text-sm text-gray-600 dark:text-gray-300">
-{terms.map((term) => (
-<li key={term}>{term}</li>
+{terms.map((term, index) => (
+<li key={index}>{term}</li>
 ))}
 </ol>
 <p className="m-0 text-sm text-gray-500 dark:text-gray-400">
