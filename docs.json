@@ -654,11 +654,11 @@
         "items": [
           {
             "label": "Terms of Service",
-            "href": "https://legal.solanamobile.com/tos-homepage-web"
+            "href": "https://solanamobile.com/tos-homepage-web"
           },
           {
             "label": "Privacy Policy",
-            "href": "https://legal.solanamobile.com/privacy-policy-homepage-web"
+            "href": "https://solanamobile.com/privacy-policy-homepage-web"
           },
           {
             "label": "Developer Agreement",
@@ -670,11 +670,11 @@
           },
           {
             "label": "Cookie Policy",
-            "href": "https://legal.solanamobile.com/en/cookie-policy-web"
+            "href": "https://solanamobile.com/cookie-policy-web"
           },
           {
             "label": "Your Privacy Choices",
-            "href": "https://legal.solanamobile.com/en/cookie-policy-web"
+            "href": "https://solanamobile.com/cookie-policy-web"
           }
         ]
       }
