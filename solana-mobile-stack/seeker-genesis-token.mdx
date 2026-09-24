@@ -42,7 +42,6 @@ Seeker Genesis Token implements several extensions, notably:
 
 ### Key Addresses
 
-- **Mint Authority**: `GT2zuHVaZQYZSyQMgJPLzvkmyztfyXg2NJunqFp4p3A4`
 - **Metadata Address**: `GT22s89nU4iWFkNXj1Bw6uYhJJWDRPpShHt4Bk8f99Te`
 - **Group Address**: `GT22s89nU4iWFkNXj1Bw6uYhJJWDRPpShHt4Bk8f99Te`
 
@@ -74,8 +73,6 @@ import { fetchAllMaybeMint } from "@solana-program/token-2022";
 
 async function checkWalletForSGT(walletAddress) {
   const HELIUS_RPC_URL = `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`;
-
-  const SGT_MINT_AUTHORITY = "GT2zuHVaZQYZSyQMgJPLzvkmyztfyXg2NJunqFp4p3A4";
 
   // The metadata mint and group mint address are intentionally the same.
   const SGT_METADATA_ADDRESS = "GT22s89nU4iWFkNXj1Bw6uYhJJWDRPpShHt4Bk8f99Te";
@@ -176,11 +173,6 @@ async function checkWalletForSGT(walletAddress) {
         // Skip addresses that have no account data on chain
         if (!mint.exists) continue;
 
-        // Check the mint authority
-        if (unwrapOption(mint.data.mintAuthority) !== SGT_MINT_AUTHORITY) {
-          continue;
-        }
-
         const extensions = unwrapOption(mint.data.extensions) ?? [];
 
         // Check for correct SGT Metadata
@@ -189,7 +181,6 @@ async function checkWalletForSGT(walletAddress) {
         );
         const hasCorrectMetadata =
           metadataPointer !== undefined &&
-          unwrapOption(metadataPointer.authority) === SGT_MINT_AUTHORITY &&
           unwrapOption(metadataPointer.metadataAddress) ===
             SGT_METADATA_ADDRESS;
 
@@ -201,8 +192,7 @@ async function checkWalletForSGT(walletAddress) {
           groupMember !== undefined &&
           groupMember.group === SGT_GROUP_MINT_ADDRESS;
 
-        // If both extensions match and the mint authority is correct,
-        // then it is an SGT
+        // If both extensions match then it is an SGT
         if (hasCorrectMetadata && hasCorrectGroupMember) {
           console.log(
             `\nVERIFIED SGT FOUND: Wallet holds a verified SGT (${mint.address}).`,
