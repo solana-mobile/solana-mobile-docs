@@ -88,4 +88,8 @@ console.log("connected as", accounts[0]?.address);
 
 "Connected" means your app holds a wallet-issued authorization token — there is no long-lived transport. Each interaction runs in its own short-lived session and silently reauthorizes with the cached token, so the user is not re-prompted for consent.
 
+## Dropped sessions
+
+If a session ends before the wallet answers, the call rejects with a `SeekerConnectError` whose `code` is `session-closed`. After a sign-and-send request, that does not mean the transaction failed: the wallet may already have submitted it, and the error carries no signature to look it up by. Don't retry automatically. Check for the transaction's effect on chain until its blockhash expires (for a durable-nonce transaction, until the nonce advances), so a transaction that already went through is not sent again.
+
 <FooterDisclaimer />
