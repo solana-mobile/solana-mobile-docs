@@ -35,6 +35,8 @@ To verify a user holds an SGT, combine wallet ownership proof with an onchain to
 2. **Check for SGT** — Query the wallet's token accounts to verify it holds a valid Seeker Genesis Token.
 3. **Track mint addresses** — Record which SGT mint addresses have been used to prevent re-use after transfers.
 
+Use the [`@solana-mobile/skr-genesis-token`](https://www.npmjs.com/package/@solana-mobile/skr-genesis-token) package for the onchain check.
+
 <Card
   title="Detecting Seeker Users"
   icon="magnifying-glass"
@@ -55,6 +57,8 @@ SKR domains are built on [AllDomains](https://alldomains.id/) and support bidire
 
 - **Forward resolution** — Given a `.skr` name, look up the associated wallet address.
 - **Reverse resolution** — Given a wallet address, look up the associated `.skr` name.
+
+Use the [`@solana-mobile/skr-domain`](https://www.npmjs.com/package/@solana-mobile/skr-domain) package to resolve names in either direction.
 
 <Card
   title="SKR Address Resolution Sample"

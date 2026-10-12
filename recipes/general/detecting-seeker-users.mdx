@@ -248,13 +248,31 @@ For complete SIWS verification details, see the [Phantom SIWS spec](https://gith
 
 **Server-side: Query an RPC to verify SGT ownership**
 
-On your backend, make an RPC query to check if the user's wallet contains a Seeker Genesis Token.
+On your backend, use the [`@solana-mobile/skr-genesis-token`](https://www.npmjs.com/package/@solana-mobile/skr-genesis-token) package to check if the user's wallet contains a Seeker Genesis Token:
 
-- Reference this [**example script**](/solana-mobile-stack/seeker-genesis-token#verifying-seeker-genesis-token-ownership) that uses the Helius `getTokenAccountsByOwnerV2` API. It returns the SGT's mint address if the wallet holds one, or `null` otherwise.
+```shell
+npm install @solana-mobile/skr-genesis-token @solana/kit
+```
+
+```ts
+// This happens on your backend server
+import { getSeekerGenesisTokens } from "@solana-mobile/skr-genesis-token";
+import { address, createSolanaRpc } from "@solana/kit";
+
+const rpc = createSolanaRpc(process.env.RPC_URL); // any mainnet RPC endpoint
+
+// Returns the mint address of every SGT the wallet currently holds, or [].
+async function getWalletSGTMints(walletAddress: string) {
+  const tokens = await getSeekerGenesisTokens(rpc, address(walletAddress));
+  return tokens.map((token) => token.mint);
+}
+```
+
+See [Verifying Seeker Genesis Token Ownership](/solana-mobile-stack/seeker-genesis-token#verifying-seeker-genesis-token-ownership) for more.
 
 #### Step 3 - Combine SIWS Verification and SGT Check
 
-On your backend server, combine the SIWS verification and SGT ownership check together to confirm the user is a verified Seeker owner. The function returns the SGT's mint address so you can record it for uniqueness checks (see the warning below), or `null` if verification fails:
+On your backend server, combine the SIWS verification and SGT ownership check together to confirm the user is a verified Seeker owner. The function returns the mint address of an SGT that has not claimed yet, so you can record it for uniqueness checks (see the warning below), or `null` if verification fails. A wallet can hold more than one SGT, so it checks every mint rather than only the first. RPC errors are thrown, not returned as `null`, so handle them separately from a failed check:
 
 ```tsx
 // On your backend server
@@ -265,9 +283,15 @@ async function verifySeekerUser(nonce, signInResult) {
     return null;
   }
 
-  // Returns the SGT's mint address if the wallet holds one, or null.
-  // Store the mint address to enforce uniqueness across transfers.
-  return await checkWalletForSGT(walletAddress);
+  // Pick a held SGT whose mint has not claimed yet. Record that mint
+  // when the claim succeeds to enforce uniqueness across transfers.
+  const mints = await getWalletSGTMints(walletAddress);
+  for (const mint of mints) {
+    if (!(await hasMintClaimed(mint))) {
+      return mint;
+    }
+  }
+  return null;
 }
 ```
 
