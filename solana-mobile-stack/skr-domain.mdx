@@ -17,6 +17,44 @@ SKR domains are built on [AllDomains](https://alldomains.id/) and support bidire
 - **Forward resolution** — Given a `.skr` name, look up the associated wallet address.
 - **Reverse resolution** — Given a wallet address, look up the associated `.skr` name.
 
+Use the [`@solana-mobile/skr-domain`](https://www.npmjs.com/package/@solana-mobile/skr-domain) package to resolve `.skr` domains in your app:
+
+```shell
+npm install @solana-mobile/skr-domain @solana/kit
+```
+
+```ts
+import {
+  getPrimarySkrDomain,
+  getSkrDomains,
+  resolveSkrDomain,
+} from "@solana-mobile/skr-domain";
+import { address, createSolanaRpc } from "@solana/kit";
+
+const rpc = createSolanaRpc(process.env.RPC_URL); // any mainnet RPC endpoint
+
+// Forward: name to wallet address, or null if not registered or expired
+const domain = await resolveSkrDomain(rpc, "alice.skr");
+console.log(domain?.owner);
+
+// Reverse: the wallet's primary name, then any name it owns, then a short address
+const wallet = address(walletAddress);
+const label =
+  (await getPrimarySkrDomain(rpc, wallet)) ??
+  (await getSkrDomains(rpc, wallet))[0] ??
+  `${wallet.slice(0, 4)}…${wallet.slice(-4)}`;
+```
+
+The primary name is the one the user chose. Anyone can send a `.skr` name to any wallet, so a name from `getSkrDomains` is not proof of identity — show it alongside the address. `getSkrDomains` uses `getProgramAccounts`, which many RPC providers rate-limit or disable, so call it from your backend.
+
+<Note>
+  React Native apps need a WebCrypto polyfill such as
+  [`react-native-quick-crypto`](https://github.com/margelo/react-native-quick-crypto),
+  installed at startup before importing the package. See the [package
+  README](https://github.com/solana-mobile/skr-js/tree/main/packages/skr-domain#readme)
+  for details and the full API.
+</Note>
+
 <Card
   title="SKR Address Resolution Sample"
   icon="code"

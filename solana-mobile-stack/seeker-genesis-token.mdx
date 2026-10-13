@@ -52,164 +52,27 @@ Seeker Genesis Token implements several extensions, notably:
 
 ## Verifying Seeker Genesis Token Ownership
 
-To verify a wallet owns a Seeker Genesis Token, you can use the [`getTokenAccountsByOwnerV2` API call](https://www.helius.dev/docs/api-reference/rpc/http/gettokenaccountsbyownerv2) provided by Helius.
-
-Two details matter for a correct check:
-
-- **Skip empty token accounts.** Transferring an SGT out of a wallet leaves the old token account open with a balance of `0`, so a wallet that once held an SGT will keep returning that account. Only a token account with a non-zero balance counts as current ownership.
-- **Return the mint address, not a boolean.** The [Anti-Sybil Example](#anti-sybil-example-in-app-rewards-claim) above requires recording the SGT's mint address, so the check should return it.
-
-The script below uses `@solana/kit` and the Token-2022 client. Install them first:
+Use the [`@solana-mobile/skr-genesis-token`](https://www.npmjs.com/package/@solana-mobile/skr-genesis-token) package to check whether a wallet holds a Seeker Genesis Token. It verifies each token by its on-chain group membership and works with any mainnet RPC endpoint.
 
 ```shell
-npm install @solana/kit @solana-program/token-2022
+npm install @solana-mobile/skr-genesis-token @solana/kit
 ```
 
-Here's an example script that returns the SGT's mint address if the wallet currently holds one, or `null` otherwise:
+The [Anti-Sybil Example](#anti-sybil-example-in-app-rewards-claim) above requires recording each SGT's mint address, so use `getSeekerGenesisTokens` to get the mints rather than a boolean. A wallet can hold more than one SGT, so keep every mint: if one has already claimed, another may not have. It skips token accounts with a zero balance, which a wallet keeps after transferring its SGT out.
 
-```js
-import { createSolanaRpc, unwrapOption } from "@solana/kit";
-import { fetchAllMaybeMint } from "@solana-program/token-2022";
+```ts
+import { getSeekerGenesisTokens } from "@solana-mobile/skr-genesis-token";
+import { address, createSolanaRpc } from "@solana/kit";
 
-async function checkWalletForSGT(walletAddress) {
-  const HELIUS_RPC_URL = `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`;
+const rpc = createSolanaRpc(process.env.RPC_URL); // any mainnet RPC endpoint
 
-  // The metadata mint and group mint address are intentionally the same.
-  const SGT_METADATA_ADDRESS = "GT22s89nU4iWFkNXj1Bw6uYhJJWDRPpShHt4Bk8f99Te";
-  const SGT_GROUP_MINT_ADDRESS = "GT22s89nU4iWFkNXj1Bw6uYhJJWDRPpShHt4Bk8f99Te";
-
-  try {
-    const rpc = createSolanaRpc(HELIUS_RPC_URL);
-
-    // getTokenAccountsByOwnerV2 is a Helius extension rather than a standard
-    // RPC method, so call it over plain JSON-RPC with pagination.
-    const allTokenAccounts = [];
-    let paginationKey = undefined;
-    let pageCount = 0;
-
-    console.log(`Starting paginated fetch for wallet: ${walletAddress}`);
-
-    do {
-      pageCount++;
-      console.log(`Fetching page ${pageCount}...`);
-
-      const requestPayload = {
-        jsonrpc: "2.0",
-        id: `page-${pageCount}`,
-        method: "getTokenAccountsByOwnerV2",
-        params: [
-          walletAddress,
-          { programId: "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb" }, // Token-2022 program
-          {
-            encoding: "jsonParsed",
-            limit: 1000, // Maximum accounts per request
-            ...(paginationKey && { paginationKey }),
-          },
-        ],
-      };
-
-      const response = await fetch(HELIUS_RPC_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestPayload),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data.error) {
-        throw new Error(`RPC error: ${data.error.message}`);
-      }
-
-      // getTokenAccountsByOwnerV2 shapes its result differently depending on
-      // withContext: without it, the accounts are the array at result.value and
-      // the key is at result.paginationKey; with it, both sit under result.value.
-      const page = Array.isArray(data.result?.value)
-        ? {
-            accounts: data.result.value,
-            paginationKey: data.result.paginationKey,
-          }
-        : (data.result?.value ?? {});
-
-      const pageResults = page.accounts ?? [];
-      console.log(
-        `Page ${pageCount}: Found ${pageResults.length} token accounts`,
-      );
-
-      allTokenAccounts.push(...pageResults);
-      paginationKey = page.paginationKey;
-    } while (paginationKey); // Continue until no more pages
-
-    console.log(
-      `\nCompleted pagination: ${pageCount} pages, ${allTokenAccounts.length} total token accounts`,
-    );
-
-    // Extract mint addresses from token accounts.
-    // Skip token accounts with a zero balance: transferring an SGT out of a
-    // wallet leaves the old token account open at a balance of 0, and it
-    // must not count as current ownership.
-    const mintAddresses = allTokenAccounts
-      .map((accountInfo) => accountInfo?.account?.data?.parsed?.info)
-      .filter((info) => info?.mint && info.tokenAmount?.amount !== "0")
-      .map((info) => info.mint);
-
-    console.log(`Extracted ${mintAddresses.length} mint addresses`);
-
-    // Fetch and decode mint accounts in batches of 100 to avoid RPC limits
-    const BATCH_SIZE = 100;
-
-    for (let i = 0; i < mintAddresses.length; i += BATCH_SIZE) {
-      const batch = mintAddresses.slice(i, i + BATCH_SIZE);
-      console.log(
-        `Fetching mint info batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(mintAddresses.length / BATCH_SIZE)}`,
-      );
-
-      const mints = await fetchAllMaybeMint(rpc, batch);
-
-      for (const mint of mints) {
-        // Skip addresses that have no account data on chain
-        if (!mint.exists) continue;
-
-        const extensions = unwrapOption(mint.data.extensions) ?? [];
-
-        // Check for correct SGT Metadata
-        const metadataPointer = extensions.find(
-          (ext) => ext.__kind === "MetadataPointer",
-        );
-        const hasCorrectMetadata =
-          metadataPointer !== undefined &&
-          unwrapOption(metadataPointer.metadataAddress) ===
-            SGT_METADATA_ADDRESS;
-
-        // Check for correct SGT Group Member
-        const groupMember = extensions.find(
-          (ext) => ext.__kind === "TokenGroupMember",
-        );
-        const hasCorrectGroupMember =
-          groupMember !== undefined &&
-          groupMember.group === SGT_GROUP_MINT_ADDRESS;
-
-        // If both extensions match then it is an SGT
-        if (hasCorrectMetadata && hasCorrectGroupMember) {
-          console.log(
-            `\nVERIFIED SGT FOUND: Wallet holds a verified SGT (${mint.address}).`,
-          );
-          return mint.address;
-        }
-      }
-    }
-
-    // No verified SGT found in wallet
-    console.log("\nNo verified SGT found in wallet.");
-    return null;
-  } catch (error) {
-    console.error("Error verifying SGT ownership:", error.message);
-    return null;
-  }
+// Returns the mint address of every SGT the wallet currently holds, or [].
+async function getWalletSGTMints(walletAddress: string) {
+  const tokens = await getSeekerGenesisTokens(rpc, address(walletAddress));
+  return tokens.map((token) => token.mint);
 }
 ```
+
+For a simple yes/no check, use `hasSeekerGenesisToken`. To verify a single mint, use `isSeekerGenesisToken`. See the [package README](https://github.com/solana-mobile/skr-js/tree/main/packages/skr-genesis-token#readme) for the full API.
 
 <FooterDisclaimer />
