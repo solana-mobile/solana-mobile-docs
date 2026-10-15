@@ -1,0 +1,413 @@
+---
+title: "Cause Pots"
+description: "How a collaborative savings app runs on an Anchor program with no backend behind it."
+sidebarTitle: "Cause Pots"
+---
+
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
+Cause Pots ships as a sample app. Create your own copy and run it on a connected Android device:
+
+<CodeGroup>
+```bash npm
+npx solana-mobile@latest create -t sample-expo-kit-cause-pots cause-pots
+cd cause-pots
+npm run android
+```
+
+```bash pnpm
+pnpm dlx solana-mobile@latest create -t sample-expo-kit-cause-pots cause-pots
+cd cause-pots
+pnpm run android
+```
+
+```bash bun
+bunx solana-mobile@latest create -t sample-expo-kit-cause-pots cause-pots
+cd cause-pots
+bun run android
+```
+
+</CodeGroup>
+
+The app runs against devnet, where the program is already deployed, so you do not need the Rust toolchain to try it. Your wallet needs a little devnet SOL for account rent and fees — get some at the [Solana Faucet](https://faucet.solana.com).
+
+## What you will learn
+
+- How a small Anchor program enforces a time-lock and an M-of-N approval threshold
+- How to list and read program accounts without an index or a backend
+- How to rebuild an activity feed from transaction history
+- How to resolve `.skr` domains with nothing but `@solana/kit`
+
+## What is Cause Pots?
+
+Contributors pool SOL into a shared vault that is **time-locked** until a set date and **multi-signature protected**: a configurable number of contributors must approve before the funds can move.
+
+Three friends create a "Vacation Fund" pot targeting 5 SOL, locked for 180 days, needing 2 of 3 signatures. They each contribute over time. Once the lock expires and two of them sign, the pot's creator releases the vault to a chosen recipient.
+
+## Where the data lives
+
+There is no server, no database, and no API. Everything the app shows comes from the chain or from the device:
+
+- **On chain** — the pooled SOL in a vault PDA, the pot's name, description, category and display currency, the unlock timestamp and signature threshold, the contributor list, and per-contributor totals. The activity feed too: it is the pot's transaction history, read back and decoded.
+- **On the device** — the friends address book, in `expo-sqlite`'s key-value store.
+
+The one exception is the SOL/USD rate, fetched from CoinGecko for pots that display amounts in USD.
+
+## The Anchor program
+
+The program lives in `anchor/programs/cause_pots/` and is deployed on devnet at [`EvUrRjL2ZowK58ai87ztHmVXyTRNvGb6HCWQ2Feo9bNN`](https://explorer.solana.com/address/EvUrRjL2ZowK58ai87ztHmVXyTRNvGb6HCWQ2Feo9bNN?cluster=devnet). Five instructions cover the whole lifecycle:
+
+| Instruction       | What it does                                                                                                     |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `create_pot`      | Creates the pot and its vault PDA, and sets the target, unlock time, and threshold                               |
+| `add_contributor` | Adds a wallet to the pot's contributor list (creator only)                                                       |
+| `contribute`      | Moves SOL into the vault, tracks the sender's total, and adds them to the contributor list if they are not on it |
+| `sign_release`    | Records one contributor's approval, once the unlock time has passed                                              |
+| `release_funds`   | Sends the vault balance to a recipient once the threshold is met (creator only)                                  |
+
+### Accounts
+
+`Pot` holds everything about a pot, including the fields the UI renders. Because the category and currency are on the account, every contributor sees the same pot without any shared metadata store:
+
+```rust
+#[account]
+#[derive(InitSpace)]
+pub struct Pot {
+    pub authority: Pubkey,
+    pub vault: Pubkey,
+    #[max_len(MAX_NAME_LENGTH)]
+    pub name: String,
+    #[max_len(MAX_DESCRIPTION_LENGTH)]
+    pub description: String,
+    pub category: PotCategory,
+    pub currency: Currency,
+    pub target_amount: u64,
+    pub total_contributed: u64,
+    pub unlock_timestamp: i64,
+    pub signers_required: u8,
+    #[max_len(MAX_CONTRIBUTORS)]
+    pub signatures: Vec<Pubkey>,
+    #[max_len(MAX_CONTRIBUTORS)]
+    pub contributors: Vec<Pubkey>,
+    pub is_released: bool,
+    pub released_at: Option<i64>,
+    pub recipient: Option<Pubkey>,
+    pub created_at: i64,
+    pub bump: u8,
+    pub vault_bump: u8,
+}
+```
+
+`Contributor` tracks one wallet's participation in one pot, and is created on that wallet's first contribution with `init_if_needed`:
+
+```rust
+#[account]
+#[derive(InitSpace)]
+pub struct Contributor {
+    pub pot: Pubkey,
+    pub contributor: Pubkey,
+    pub total_contributed: u64,
+    pub contribution_count: u32,
+    pub last_contribution_at: i64,
+    pub joined_at: i64,
+    pub bump: u8,
+}
+```
+
+Both `Vec` fields are capped at `MAX_CONTRIBUTORS`, which is what makes the account size knowable up front — Anchor's `InitSpace` needs a bound for every variable-length field.
+
+### PDA design
+
+Every account is a PDA, derived from seeds rather than stored anywhere:
+
+| Account     | Seeds                               | Purpose                                     |
+| ----------- | ----------------------------------- | ------------------------------------------- |
+| Pot         | `["pot", authority, name]`          | One pot per creator per name                |
+| Vault       | `["vault", pot]`                    | One SOL-holding account per pot             |
+| Contributor | `["contributor", pot, contributor]` | One tracking record per contributor per pot |
+
+Know the creator and the pot name and you can always re-derive the pot's address, which is why the app never has to remember one.
+
+### The time-lock uses cluster time
+
+`unlock_timestamp` is computed on chain from `Clock::get()`, never passed in by the client, so changing the device clock does nothing:
+
+```rust
+pot.unlock_timestamp = unlock_days
+    .checked_mul(SECONDS_PER_DAY)
+    .and_then(|seconds| clock.unix_timestamp.checked_add(seconds))
+    .ok_or(ErrorCode::Overflow)?;
+```
+
+### Signing is gated four ways
+
+`sign_release` rejects a released pot, a non-contributor, a repeat signature, and any signature before the unlock time:
+
+```rust
+require!(!pot.is_released, ErrorCode::PotAlreadyReleased);
+require!(pot.contributors.contains(&signer), ErrorCode::NotAContributor);
+require!(!pot.signatures.contains(&signer), ErrorCode::AlreadySigned);
+require!(clock.unix_timestamp >= pot.unlock_timestamp, ErrorCode::TimeLockNotExpired);
+
+pot.signatures.push(signer);
+```
+
+`release_funds` then checks the count against the threshold and transfers the vault balance. The vault is a PDA with no private key, so the program signs for it with the vault seeds:
+
+```rust
+require!(clock.unix_timestamp >= pot.unlock_timestamp, ErrorCode::TimeLockNotExpired);
+require!(
+    pot.signatures.len() >= pot.signers_required as usize,
+    ErrorCode::InsufficientSignatures
+);
+
+let seeds = &[VAULT_SEED, pot_key.as_ref(), &[pot.vault_bump]];
+anchor_lang::solana_program::program::invoke_signed(
+    &ix,
+    &[
+        ctx.accounts.vault.to_account_info(),
+        ctx.accounts.recipient.to_account_info(),
+    ],
+    &[&seeds[..]],
+)?;
+```
+
+Worth being clear about what a signature authorizes. `sign_release` takes no arguments — a contributor approves _releasing_, not paying any particular address. The recipient is an account on `release_funds`, chosen by the creator when they submit it. So the threshold protects against an early or unilateral release, not against the creator sending the funds somewhere the signers did not expect.
+
+Membership is not invitation-only either. `contribute` adds any wallet that is not already on the list, so contributing to a pot is how you join it — and `signers_required` is an absolute count, not a share of the invited group, so wallets that enroll themselves this way can help meet it.
+
+`anchor/tests/cause_pots.test.ts` covers the rejection paths as well as the happy one: releasing before the unlock time, releasing under the threshold, signing twice, and signing as a non-contributor.
+
+<Note>
+  For production, consider [Squads](https://squads.so/) rather than writing your
+  own multi-signature logic. It is implemented from scratch here to show more of
+  the program surface.
+</Note>
+
+## Reading pots without an index
+
+There is no database to ask "which pots am I in?", so the app scans the program's accounts, filters by the account discriminator, decodes with the generated client, and keeps the pots that list the wallet as a contributor:
+
+```ts
+// src/features/pots/data-access/use-pots-query.ts
+const accounts = await client.rpc
+  .getProgramAccounts(CAUSE_POTS_PROGRAM_ADDRESS, {
+    encoding: "base64",
+    filters: [
+      {
+        memcmp: {
+          offset: 0n,
+          bytes: getBase58Decoder().decode(
+            POT_DISCRIMINATOR,
+          ) as Base58EncodedBytes,
+          encoding: "base58",
+        },
+      },
+    ],
+  })
+  .send();
+
+const decoder = getPotDecoder();
+return accounts
+  .map(({ account: { data }, pubkey }) => ({
+    address: pubkey,
+    data: decoder.decode(getBase64Encoder().encode(data[0])),
+  }))
+  .filter(({ data }) => data.contributors.includes(account.address))
+  .sort((a, b) => Number(b.data.createdAt - a.data.createdAt));
+```
+
+`POT_DISCRIMINATOR` and `getPotDecoder` are both generated from the IDL, so the filter and the decode stay in step with the program.
+
+<Warning>
+  The discriminator filter runs on the RPC node, so the response carries every
+  `Pot` on the cluster rather than only yours. Narrowing to your pots happens in
+  the app, which means the work grows with total program usage rather than with
+  one user's data. Fine at sample scale; a real deployment wants an indexer.
+</Warning>
+
+Contribution totals come from the `Contributor` PDAs, derived from the pot's contributor list and fetched in one call:
+
+```ts
+// src/features/pots/data-access/use-pot-contributors-query.ts
+const addresses = await Promise.all(
+  contributors.map(async (contributor) => {
+    const [address] = await findContributorAccountPda({ contributor, pot });
+    return address;
+  }),
+);
+const accounts = await fetchAllMaybeContributor(client.rpc, addresses);
+```
+
+`fetchAllMaybeContributor` matters here: a wallet that was added to a pot but has not contributed yet has no `Contributor` account at all, and the UI shows it as a contributor with nothing pledged.
+
+## Writing to the program
+
+Each instruction is a mutation built with the generated client and sent through Mobile Wallet Adapter. Creating a pot batches the invited friends into the same transaction, so one wallet approval covers the whole setup:
+
+```ts
+// src/features/pots/data-access/use-pot-program.ts
+const transactionSignature = await sendInstructions(async (authority) => {
+  const [pot] = await findPotPda({
+    authority: authority.address,
+    name: params.name,
+  });
+  return [
+    await getCreatePotInstructionAsync({
+      authority,
+      category: params.category,
+      currency: params.currency,
+      description: params.description,
+      name: params.name,
+      signersRequired: params.signersRequired,
+      targetAmount: params.targetAmount,
+      unlockDays: params.unlockDays,
+    }),
+    ...params.contributors.map((newContributor) =>
+      getAddContributorInstruction({ authority, newContributor, pot }),
+    ),
+  ];
+});
+```
+
+Note the pot PDA is derived before the pot exists — the address is a function of the creator and the name, so `add_contributor` can reference it in the same transaction that creates it.
+
+The transaction assembly behind `sendInstructions` is the standard `@solana/kit` and MWA pattern, covered in the [Anchor Integration guide](/recipes/solana-development/anchor-integration).
+
+## The activity feed is transaction history
+
+Every event the app shows is recoverable from the chain. `getSignaturesForAddress` on a pot gives the timeline, and the generated instruction parser says what each transaction did:
+
+```ts
+// src/features/activity/data-access/use-activity-query.ts
+switch (tryIdentifyInstruction(bytes)) {
+  case CausePotsInstruction.AddContributor:
+    return {
+      actor: accounts[1],
+      newContributor:
+        getAddContributorInstructionDataDecoder().decode(bytes).newContributor,
+      type: "add-contributor",
+    };
+  case CausePotsInstruction.Contribute:
+    return {
+      actor: accounts[3],
+      amount: getContributeInstructionDataDecoder().decode(bytes).amount,
+      type: "contribute",
+    };
+  // ...
+}
+```
+
+`identifyCausePotsInstruction` matches the instruction discriminator, and the per-instruction data decoders pull out the arguments. Account positions come from the program's `#[derive(Accounts)]` structs, so `accounts[3]` on `contribute` is the contributor.
+
+Two details worth copying. The identifier throws on data it does not recognize, so it is wrapped in a `try` and unknown instructions are skipped rather than failing the whole feed. And the scan is bounded — ten pots, twenty signatures each — because this runs on every feed load.
+
+## Friends and `.skr` domains
+
+Friends are a local address book, stored in `expo-sqlite`'s key-value store, used to pick contributors and release recipients. Adding one accepts a wallet address or a `.skr` domain.
+
+Domain resolution is hand-written against AllDomains with no SDK beyond `@solana/kit`. Every name record is a PDA of the hashed name, an unset name class, and the parent record:
+
+```ts
+// src/features/domains/resolve-skr-domain.ts
+const nameBytes = new Uint8Array(getUtf8Encoder().encode(HASH_PREFIX + name));
+const hashedName = new Uint8Array(
+  await crypto.subtle.digest("SHA-256", nameBytes),
+);
+const [record] = await getProgramDerivedAddress({
+  programAddress: ANS_PROGRAM_ADDRESS,
+  seeds: [hashedName, new Uint8Array(32), getAddressEncoder().encode(parent)],
+});
+```
+
+The account is then decoded by offset — owner at 40, expiry at 104 — and expired records resolve to nothing. Tokenized domains add a step: the record's owner is an NFT record PDA rather than a wallet, and the real owner is whoever currently holds the domain NFT.
+
+Two things to know. Resolution always talks to mainnet, on its own RPC connection, no matter which cluster the rest of the app targets — that is where the records live. And it is forward-only: the app resolves a domain to an address, never the reverse.
+
+## USD is a display currency
+
+A pot created in USD still moves SOL on chain. The currency on the account only changes how amounts render:
+
+```ts
+// src/utils/currency.ts
+export function formatAmount(
+  lamports: bigint,
+  currency: Currency,
+  solPrice: number | null | undefined,
+): string {
+  if (currency === Currency.Usd && solPrice) {
+    return formatUsd(lamports, solPrice);
+  }
+  return formatSol(lamports);
+}
+```
+
+Targets and balances are lamports everywhere else in the app, converted at the current CoinGecko rate only at the edge.
+
+## Running against localnet
+
+For a faster loop than devnet, run everything locally and forward it to the device over adb:
+
+<Steps>
+<Step title="Start the validator">
+
+```bash
+npx solana-mobile localnet
+```
+
+Leave it running.
+
+</Step>
+<Step title="Take ownership of the program">
+
+```bash
+npm run anchor:setup
+```
+
+The program keypair is not part of the template, so a fresh project has none. This generates one, writes the new address into `Anchor.toml` and `declare_id!`, and regenerates the client — without it the deployed program and the address the app calls do not match.
+
+</Step>
+<Step title="Deploy the program to it">
+
+```bash
+npm run anchor:deploy:localnet
+```
+
+</Step>
+<Step title="Switch the app to Localnet">
+
+Use the network selector in the app, then connect your wallet and tap **Request Airdrop** to fund it.
+
+</Step>
+</Steps>
+
+<Warning>
+  The regular Seeker wallet only signs for public clusters. Signing on localnet
+  needs a localnet-capable wallet such as
+  [fakewallet](https://github.com/solana-mobile/mobile-wallet-adapter/tree/main/android/fakewallet).
+</Warning>
+
+Reaching a plain `http://` localnet needs cleartext HTTP, which Android only allows in debug builds — the kind `npm run android` produces. Release builds only talk HTTPS; if you need localnet in one, add an Android [network security configuration](https://developer.android.com/privacy-and-security/security-config) scoped to `localhost` and `127.0.0.1`.
+
+## Common issues
+
+**Wallet connection times out, or the app crashes on connect** — Mobile Wallet Adapter needs native code that Expo Go does not ship. Use a development build: `npm run android`.
+
+**"Attempt to debit an account but found no record of a prior credit"** — the wallet has never held SOL on this cluster. Fund it at the [faucet](https://faucet.solana.com), or use **Request Airdrop** on localnet.
+
+**"Already in use" when creating a pot** — the pot PDA is derived from your wallet and the pot name, so the same name twice from the same wallet lands on an address that already exists. Pick a different name.
+
+**"Invalid instruction data" or an unknown instruction** — the generated client is out of step with the program. Rebuild and regenerate:
+
+```bash
+npm run anchor:build
+npm run codama:js
+```
+
+**A pot you were added to does not appear** — the list only keeps pots whose `contributors` array holds your address. Contributors invited when the pot is created ride in the same transaction as `create_pot`, so those either both land or neither does. A contributor added later is its own transaction and can fail on its own — check the pot's transaction history in the explorer.
+
+## Next steps
+
+The client generation, transaction assembly, and program deployment steps used throughout this app are covered in the [Anchor Integration guide](/recipes/solana-development/anchor-integration).
+
+<FooterDisclaimer />
