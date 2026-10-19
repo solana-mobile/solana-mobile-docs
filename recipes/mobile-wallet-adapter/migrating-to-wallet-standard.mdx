@@ -39,12 +39,7 @@ Ensure `registerMwa` is invoked in a non-SSR context. if you're using a framewor
 ```ts expandable
 // 'use client' - If using Next.js, ensure it is registered in a non-SSR context.
 
-import {
-  createDefaultAuthorizationCache,
-  createDefaultChainSelector,
-  createDefaultWalletNotFoundHandler,
-  registerMwa,
-} from "@solana-mobile/wallet-standard-mobile";
+import { registerMwa } from "@solana-mobile/wallet-standard-mobile";
 
 registerMwa({
   appIdentity: {
@@ -52,10 +47,7 @@ registerMwa({
     uri: "https://myapp.io",
     icon: "relative/path/to/icon.png", // resolves to https://myapp.io/relative/path/to/icon.png
   },
-  authorizationCache: createDefaultAuthorizationCache(),
   chains: ["solana:devnet", "solana:mainnet"],
-  chainSelector: createDefaultChainSelector(),
-  onWalletNotFound: createDefaultWalletNotFoundHandler(),
 });
 ```
 
