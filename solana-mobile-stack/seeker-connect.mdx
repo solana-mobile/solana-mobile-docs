@@ -15,30 +15,30 @@ Seeker Connect is built on top of the official [Mobile Wallet Adapter](/solana-m
 
 ## Targets
 
-| Target           | Status                                                                 |
-| ---------------- | ---------------------------------------------------------------------- |
-| Web              | Available — Wallet Standard implementation, plus an imperative web SDK |
-| React Native     | Planned                                                                |
-| Android (Kotlin) | Planned                                                                |
+| Target              | Status                                                                                        |
+| ------------------- | --------------------------------------------------------------------------------------------- |
+| Expo / React Native | Available — `@solana-mobile/seeker-connect-react-native`, a native module over the Kotlin SDK |
+| Kotlin              | Available — `com.solanamobile:seeker-connect` on Maven Central, with Jetpack Compose UI       |
+| Web                 | Available — Wallet Standard implementation, plus an imperative web SDK                        |
 
 A Wallet Standard-compatible package is always provided.
 
 ## Get started
 
-The easiest way to get started is with [`solana-mobile create`](/cli/create), using a template that ships Seeker Connect:
+The easiest way to get started is with [`solana-mobile create`](/cli/create), using the template for your target that ships Seeker Connect:
 
 <CodeGroup>
 
-```bash npm
+```bash Expo / React Native
+npx solana-mobile@latest create my-app --template expo-kit-minimal
+```
+
+```bash Kotlin
+npx solana-mobile@latest create my-app --template kotlin-compose-minimal
+```
+
+```bash Web
 npx solana-mobile@latest create my-app --template react-kit-shadcn
-```
-
-```bash pnpm
-pnpm dlx solana-mobile@latest create my-app --template react-kit-shadcn
-```
-
-```bash bun
-bunx solana-mobile@latest create my-app --template react-kit-shadcn
 ```
 
 </CodeGroup>
