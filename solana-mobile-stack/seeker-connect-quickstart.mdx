@@ -7,11 +7,131 @@ description: "Install Seeker Connect and add a branded wallet connect flow to yo
 import { RelayUrl } from "/snippets/relay-url.mdx";
 import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
 
-Connect your app directly to a Solana Mobile certified device's own wallet. The web SDK is available today; React Native and Android are planned.
+Connect your app directly to a Solana Mobile certified device's own wallet. Expo / React Native comes first, then Kotlin, then web.
 
-Most apps use the Wallet Standard entry point, which discovers and drives Seeker Connect like any other [Wallet Standard](https://github.com/wallet-standard/wallet-standard) wallet — no Seeker-specific code in your connect flow.
+## Expo / React Native
 
-## Install
+`@solana-mobile/seeker-connect-react-native` is a native module over the Kotlin Seeker Connect SDK, with the SDK's own button and dialogs. It talks to the wallet on the device directly, so it needs no relay. It is Android only, like Mobile Wallet Adapter. It requires Expo SDK 54 or later, or React Native 0.81 or later, and a development build: Expo Go cannot run native modules. The `expo-kit-minimal` template from `npx solana-mobile@latest create` ships this section wired up, so a new app can start there.
+
+<CodeGroup>
+
+```bash npm
+npm install @solana-mobile/seeker-connect-react-native
+```
+
+```bash pnpm
+pnpm add @solana-mobile/seeker-connect-react-native
+```
+
+```bash bun
+bun add @solana-mobile/seeker-connect-react-native
+```
+
+</CodeGroup>
+
+Rebuild the development client, then configure once and connect:
+
+```tsx
+import {
+  SeekerConnect,
+  SeekerConnectButton,
+} from "@solana-mobile/seeker-connect-react-native";
+
+await SeekerConnect.configure({
+  identity: {
+    name: "My App",
+    uri: "https://myapp.example.com",
+    icon: "favicon.ico",
+  },
+});
+
+const authorization = await SeekerConnect.connect();
+console.log("connected as", authorization.accounts[0]?.address);
+```
+
+`identity.uri` must be an `https` URL. The wallet shows its host when asking for consent, and ends the session for a custom scheme such as `myapp://`. `icon` is resolved relative to `identity.uri`, so the example points at `https://myapp.example.com/favicon.ico`.
+
+`SeekerConnectButton` draws the "Connect with Seeker" button natively. Give it a height in `style`, since React Native cannot measure the native view, and wire `onPress` to `connect()`:
+
+```tsx
+<SeekerConnectButton
+  onPress={() => SeekerConnect.connect().catch(console.error)}
+  style={{ height: 56 }}
+/>
+```
+
+`connect()` rejects with a `SeekerConnectError` when the user cancels or the wallet declines. The SDK's dialog has already shown that to the user, so log it and keep the disconnected state.
+
+`restore()` returns the cached authorization without launching the wallet, so a returning user is connected on launch. `signIn`, `signMessages`, `signTransactions`, `signAndSendTransactions`, and `disconnect` complete the client, and every call rejects with the same `SeekerConnectError` codes as the web SDK.
+
+## Kotlin
+
+`com.solanamobile:seeker-connect` is the Seeker Connect SDK for Kotlin apps, and `com.solanamobile:seeker-connect-compose` adds its button and dialogs for Jetpack Compose. Both are on Maven Central and need compileSdk 36 or later, Android Gradle plugin 8.9.1 or later, and Kotlin 2.0 or later. The `kotlin-compose-minimal` template from `npx solana-mobile@latest create` ships this section wired up, so a new app can start there.
+
+```toml gradle/libs.versions.toml
+[versions]
+seekerConnect = "0.2.0"
+
+[libraries]
+seeker-connect = { group = "com.solanamobile", name = "seeker-connect", version.ref = "seekerConnect" }
+seeker-connect-compose = { group = "com.solanamobile", name = "seeker-connect-compose", version.ref = "seekerConnect" }
+```
+
+```kotlin app/build.gradle.kts
+implementation(libs.seeker.connect)
+implementation(libs.seeker.connect.compose)
+```
+
+Build one `SeekerConnect` and keep it in a ViewModel. It takes the dapp identity, the transport, a cache for the authorization, and the dialog state the Compose module draws:
+
+```kotlin
+class MainViewModel(application: Application) : AndroidViewModel(application) {
+  val dialogs = SeekerConnectDialogState()
+
+  private val seekerConnect = SeekerConnect(
+    SeekerConnectConfig(identity = DappIdentity("My App", "https://myapp.example.com", "favicon.ico")),
+    MwaSeekerLink(application),
+    SharedPreferencesAuthorizationCache(application),
+    dialogs,
+  )
+
+  val authorization = seekerConnect.authorization
+
+  init {
+    viewModelScope.launch { seekerConnect.restore() }
+  }
+
+  fun connect(host: ComponentActivity) = host.lifecycleScope.launch {
+    try {
+      seekerConnect.connect(host)
+    } catch (e: SeekerConnectException) {
+      Log.w("Wallet", "connect failed: ${e.code}")
+    }
+  }
+}
+```
+
+`identity.uri` must be an `https` URL, as for React Native. `authorization` is a `StateFlow` that holds the connected accounts and is `null` while disconnected, so collect it to drive the UI. `restore()` fills it from the cache on launch without opening the wallet.
+
+Calls that open the wallet take the activity to open it from. Launch them in that activity's `lifecycleScope`, so a destroyed activity cancels them instead of opening the wallet later:
+
+```kotlin
+setContent {
+  val authorization by viewModel.authorization.collectAsStateWithLifecycle()
+  if (authorization == null) {
+    SeekerConnectButton(onClick = { viewModel.connect(this) })
+  }
+  SeekerConnectDialogs(viewModel.dialogs)
+}
+```
+
+`SeekerConnectButton` draws the "Connect with Seeker" button at its design size and follows the system theme. `SeekerConnectDialogs` draws the progress and error cards; place it once at the top of the screen tree. `signIn`, `signMessages`, `signTransactions`, `signAndSendTransactions`, `transact`, and `disconnect` complete the client. Wallet and transport failures throw a `SeekerConnectException` whose `code` matches the web SDK's in upper snake case, for example `SESSION_CLOSED` for `session-closed`. Catch it inside the coroutine, as `connect` above does, since an exception that escapes `launch` crashes the app; the dialogs have already shown it to the user. Let `CancellationException` propagate.
+
+## Web
+
+Web apps use the Wallet Standard entry point, which discovers and drives Seeker Connect like any other [Wallet Standard](https://github.com/wallet-standard/wallet-standard) wallet — no Seeker-specific code in your connect flow.
+
+### Install
 
 <CodeGroup>
 
@@ -31,13 +151,13 @@ bun add @solana-mobile/seeker-connect-wallet-standard @wallet-standard/app @wall
 
 The Wallet Standard package pulls in the rest of the SDK transitively. `@wallet-standard/app` and `@wallet-standard/features` are the registry helpers most Solana apps already have.
 
-## Relay URL
+### Relay URL
 
 Seeker Connect utilizes Mobile Wallet Adapter's extended remote communication protocol over a Nostr relay. Any Nostr relay that supports public access and ephemeral events can be used. Solana Mobile provides a Nostr relay that satisfies these requirements and is free to use. Use of the Solana Mobile Nostr relay requires agreement to our terms.
 
 <RelayUrl />
 
-## Quick start
+### Quick start
 
 <Steps>
 
@@ -90,6 +210,6 @@ console.log("connected as", accounts[0]?.address);
 
 ## Dropped sessions
 
-If a session ends before the wallet answers, the call rejects with a `SeekerConnectError` whose `code` is `session-closed`. After a sign-and-send request, that does not mean the transaction failed: the wallet may already have submitted it, and the error carries no signature to look it up by. Don't retry automatically. Check for the transaction's effect on chain until its blockhash expires (for a durable-nonce transaction, until the nonce advances), so a transaction that already went through is not sent again.
+If a session ends before the wallet answers, the call rejects with a `SeekerConnectError` whose `code` is `session-closed` (`SESSION_CLOSED` in Kotlin). After a sign-and-send request, that does not mean the transaction failed: the wallet may already have submitted it, and the error carries no signature to look it up by. Don't retry automatically. Check for the transaction's effect on chain until its blockhash expires (for a durable-nonce transaction, until the nonce advances), so a transaction that already went through is not sent again.
 
 <FooterDisclaimer />
