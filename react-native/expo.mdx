@@ -22,7 +22,7 @@ The quickest option to get started with Expo development is using the [Solana Mo
 Initialize the template with:
 
 ```bash
-yarn create expo-app --template @solana-mobile/solana-mobile-expo-template
+npx create-expo-app --template @solana-mobile/solana-mobile-expo-template
 ```
 
 Then follow the [_Running the app_](#running-the-app) guide below.
@@ -48,18 +48,28 @@ Enter your app project name then move into the newly generated folder.
 #### Step 2 - Install dependencies
 
 <CodeGroup>
-```shell yarn
-yarn add \
-  @solana/web3.js \
+
+```shell npm
+npm install \
+  @solana/web3.js@1 \
   @solana-mobile/mobile-wallet-adapter-protocol-web3js \
   @solana-mobile/mobile-wallet-adapter-protocol \
   react-native-get-random-values \
   buffer
 ```
 
-```shell npm
-npm install \
-  @solana/web3.js \
+```shell pnpm
+pnpm add \
+  @solana/web3.js@1 \
+  @solana-mobile/mobile-wallet-adapter-protocol-web3js \
+  @solana-mobile/mobile-wallet-adapter-protocol \
+  react-native-get-random-values \
+  buffer
+```
+
+```shell bun
+bun add \
+  @solana/web3.js@1 \
   @solana-mobile/mobile-wallet-adapter-protocol-web3js \
   @solana-mobile/mobile-wallet-adapter-protocol \
   react-native-get-random-values \
