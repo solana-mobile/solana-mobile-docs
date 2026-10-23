@@ -237,8 +237,13 @@
           {
             "group": "Solana Development",
             "pages": [
-              "recipes/solana-development/anchor-integration",
-              "recipes/solana-development/using-anchor-programs"
+              {
+                "group": "Anchor",
+                "pages": [
+                  "recipes/solana-development/anchor/kotlin",
+                  "recipes/solana-development/anchor/react-native"
+                ]
+              }
             ]
           }
         ]
@@ -335,7 +340,7 @@
     },
     {
       "source": "/android-native/using-anchor-programs",
-      "destination": "/recipes/solana-development/using-anchor-programs"
+      "destination": "/recipes/solana-development/anchor/kotlin"
     },
     {
       "source": "/blog/ios-wallet-signing",
@@ -515,7 +520,7 @@
     },
     {
       "source": "/react-native/anchor_integration",
-      "destination": "/recipes/solana-development/anchor-integration"
+      "destination": "/recipes/solana-development/anchor/react-native"
     },
     {
       "source": "/react-native/building_transactions",
@@ -559,7 +564,7 @@
     },
     {
       "source": "/react-native/polyfill-guides/anchor",
-      "destination": "/recipes/solana-development/anchor-integration"
+      "destination": "/recipes/solana-development/anchor/react-native"
     },
     {
       "source": "/react-native/polyfill-guides/polyfills",
@@ -604,6 +609,14 @@
     {
       "source": "/react-native/wallet_ui_mobile_wallet_adapter",
       "destination": "/get-started/react-native/installation"
+    },
+    {
+      "source": "/recipes/solana-development/anchor-integration",
+      "destination": "/recipes/solana-development/anchor/react-native"
+    },
+    {
+      "source": "/recipes/solana-development/using-anchor-programs",
+      "destination": "/recipes/solana-development/anchor/kotlin"
     },
     {
       "source": "/reference/overview",
