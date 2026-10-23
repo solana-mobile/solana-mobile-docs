@@ -1,0 +1,94 @@
+---
+title: "Verify Your App Identity with Wallets"
+description: "Publish a Digital Asset Links file so Mobile Wallet Adapter wallets can verify your Android app."
+sidebarTitle: "Verify app identity"
+---
+
+import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+
+## Overview
+
+When your Android app calls `authorize`, the wallet checks that the app is really the one behind the `identity.uri` domain. It loads the [Digital Asset Links](https://developers.google.com/digital-asset-links/v1/getting-started) file at `https://<your-domain>/.well-known/assetlinks.json` and confirms the calling app's package name and signing certificate are listed in an `android_app` statement.
+
+If the check fails, or `identity` has no `uri`, the [MWA spec](https://solana-mobile.github.io/mobile-wallet-adapter/spec/spec.html#dapp-identity-verification) recommends the wallet decline authorization with `ERROR_AUTHORIZATION_FAILED`. Wallets decide how to handle it, so a user may instead see your app flagged as unverified.
+
+## Set your identity
+
+Set `identity.uri` to an absolute `https` URL on a domain you control, plus a `name` and `icon`. See [Identity object](/get-started/react-native/setup#identity-object) for React Native or [Setup](/get-started/kotlin/setup) for Kotlin.
+
+The domain in `identity.uri` is the one that must host `assetlinks.json`.
+
+## Get your signing certificate fingerprints
+
+The wallet checks the certificate that signed the installed APK, so list every key that signs a build users or testers run:
+
+- **Debug key:** signs local development builds.
+- **dApp Store release key:** the key you [created for the dApp Store](/dapp-store/build-and-sign-an-apk#create-a-signing-key). The dApp Store installs the APK as you signed it.
+- **Google Play key:** if you also ship on Google Play, use the app signing key fingerprint from Play Console (**Setup > App signing**). It differs from your dApp Store key.
+
+Print the SHA-256 fingerprint of a keystore with `keytool`:
+
+```bash
+keytool -list -v -keystore my-app-name.keystore -alias my-app-name
+```
+
+For the default debug key:
+
+```bash
+keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android
+```
+
+In a Gradle project, `./gradlew signingReport` prints the fingerprint of every configured signing config. To read it from a built APK:
+
+```bash
+apksigner verify --print-certs app-release.apk
+```
+
+Copy the `SHA256` value, in the `AA:BB:...` format.
+
+## Publish `assetlinks.json`
+
+Add one `android_app` statement listing your package name and every fingerprint:
+
+```json
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.example.myapp",
+      "sha256_cert_fingerprints": [
+        "<DEBUG_KEY_SHA256>",
+        "<DAPP_STORE_KEY_SHA256>",
+        "<GOOGLE_PLAY_KEY_SHA256>"
+      ]
+    }
+  }
+]
+```
+
+Host it at `https://<your-domain>/.well-known/assetlinks.json`, where `<your-domain>` is the host in `identity.uri`. The file must:
+
+- Be served over `https` with a valid certificate.
+- Return `200` with `Content-Type: application/json`.
+- Load without any redirect.
+
+## Check the file
+
+Fetch it and confirm the status and content type:
+
+```bash
+curl -i https://example.com/.well-known/assetlinks.json
+```
+
+Then confirm Google's Digital Asset Links API parses it and returns your statement:
+
+```text
+https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=https://example.com&relation=delegate_permission/common.handle_all_urls
+```
+
+## Transaction warnings are separate
+
+A wallet's transaction scanner can still warn on a verified app, for example when simulation hits a program it doesn't recognize. Each wallet decides these warnings, so contact the wallet's team through its own support or review process if you believe a warning is wrong.
+
+<FooterDisclaimer />
