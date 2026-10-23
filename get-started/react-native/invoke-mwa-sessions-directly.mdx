@@ -237,6 +237,8 @@ await transact(async (wallet: KitMobileWallet) => {
     chain: "solana:devnet",
     identity: APP_IDENTITY,
   });
+  // The wallet may return a new auth token on each authorization, so always store the latest one.
+  saveAuthToken(authorizationResult.auth_token); // dummy placeholder function
 
   // Rest of transact code goes below...
 });
@@ -262,6 +264,8 @@ await transact(async (wallet: Web3MobileWallet) => {
     chain: "solana:devnet",
     identity: APP_IDENTITY,
   });
+  // The wallet may return a new auth token on each authorization, so always store the latest one.
+  saveAuthToken(authorizationResult.auth_token); // dummy placeholder function
 
   // Rest of transact code goes below...
 });
