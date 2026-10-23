@@ -94,7 +94,7 @@ export default function App() {
 
 ### Identity object
 
-Every field is optional in the protocol, but set `name` and an absolute `uri`. Wallets verify your app by checking the Digital Asset Links file on the `uri` domain against your app signing key, and the [MWA spec](https://solana-mobile.github.io/mobile-wallet-adapter/spec/spec.html#dapp-identity-verification) recommends a wallet decline authorization when `identity` carries no `uri`. A relative `icon` also resolves against `uri`.
+Every field is optional in the protocol, but set `name` and an absolute `uri`. Wallets verify your app by checking the [Digital Asset Links file](/recipes/mobile-wallet-adapter/verify-app-identity) on the `uri` domain against your app signing key, and the [MWA spec](https://solana-mobile.github.io/mobile-wallet-adapter/spec/spec.html#dapp-identity-verification) recommends a wallet decline authorization when `identity` carries no `uri`. A relative `icon` also resolves against `uri`.
 
 | Field  | Type     | Description                                               |
 | ------ | -------- | --------------------------------------------------------- |
