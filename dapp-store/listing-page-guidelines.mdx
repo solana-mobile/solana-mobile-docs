@@ -1,14 +1,36 @@
 ---
-title: "dApp Listing Page Guidelines"
+title: "Listing Page Guidelines"
 description: "Your dApp's listing page is often the first impression users will have of your application. These guidelines will help you create a compelling and informative listing that showcases your dApp."
-sidebarTitle: "Prepare your dApp Listing page"
+sidebarTitle: "Listing Page Guidelines"
 ---
+
+The examples on this page show the listing for [Pocket Address](https://github.com/beeman/pocket-address), a demo app.
+
+## Banner
+
+<Columns cols={2}>
+  <Frame>
+    <img
+      src="/images/static/listing_page_imgs/banner.png"
+      alt="Pocket Address listing with the banner highlighted at the top of the page"
+    />
+  </Frame>
+</Columns>
+
+The banner appears at the top of your app's detail page, behind the app icon.
+
+**Requirements**
+
+- Banner must be 1200px by 600px dimensions.
 
 ## App Icon
 
 <Columns cols={2}>
   <Frame>
-    <img src="/images/static/listing_page_imgs/appicon.png" alt="App Icon" />
+    <img
+      src="/images/static/listing_page_imgs/icon.png"
+      alt="Pocket Address listing with the app icon highlighted"
+    />
   </Frame>
 </Columns>
 
@@ -17,37 +39,54 @@ The app icon is often a user's first point of contact with your app on the dApp 
 **Requirements**
 
 - Icon must be 512px by 512px dimensions.
+- Icon must have a background color (no transparency).
 
 ## App Name
 
 <Columns cols={2}>
   <Frame>
-    <img src="/images/static/listing_page_imgs/appname.png" alt="App Name" />
+    <img
+      src="/images/static/listing_page_imgs/name.png"
+      alt="Pocket Address listing with the app name highlighted"
+    />
   </Frame>
 </Columns>
 
 Your app name should be unique, memorable, and suggest your app's core functionality. Set yourself apart by choosing a name that isn't generic or too similar to existing apps.
 
+**Requirements**
+
+- App name cannot exceed 25 characters.
+
 ## Description
+
+### Short Description
 
 <Columns cols={2}>
   <Frame>
     <img
       src="/images/static/listing_page_imgs/subtitle.png"
-      alt="Description"
+      alt="Pocket Address listing with the short description highlighted below the app name"
     />
   </Frame>
 </Columns>
-
-**Short Description**
 
 Your app's subtitle, or short description, should concisely communicate the purpose of your app. Use this space to showcase your app's "elevator pitch" and capture a user's attention.
 
 **Requirements**
 
-- Short description cannot exceed 30 characters.
+- Short description cannot exceed 50 characters.
 
-**Long Description**
+### Long Description
+
+<Columns cols={2}>
+  <Frame>
+    <img
+      src="/images/static/listing_page_imgs/description.png"
+      alt="Pocket Address listing with the long description highlighted"
+    />
+  </Frame>
+</Columns>
 
 Your app's long description should be a well-written, concise overview of your app's features and functionality. Use this space to give more context to users about what your app is and how they will use it. Users should be able to read it and quickly understand your app's core purpose.
 
@@ -56,8 +95,8 @@ Your app's long description should be a well-written, concise overview of your a
 <Columns cols={2}>
   <Frame>
     <img
-      src="/images/static/listing_page_imgs/apppreview.gif"
-      alt="App Preview"
+      src="/images/static/listing_page_imgs/preview.png"
+      alt="Pocket Address listing preview gallery with app screenshots"
     />
   </Frame>
 </Columns>
@@ -68,8 +107,8 @@ An app preview video should effectively showcase your app's main features, UI fl
 
 **Requirements**
 
-- All videos must be at least 720px in width and height. 1080p (1920px by 1080px) is strongly recommended.
-- All videos must be `.mp4` video file format.
+- 1080p (1920px by 1080px) is strongly recommended.
+- All videos must be `.mp4` video file format, up to 30MB each.
 
 ### Screenshots
 
@@ -77,6 +116,34 @@ An app preview screenshot should highlight a core feature or screen of your app.
 
 **Requirements**
 
-- All images must be at least 1080px in width and height.
-- All images must have consistent orientation (landscape or portrait).
-- All images must have equal aspect ratio.
+- Upload 4 to 8 screenshots or videos.
+- Images can be JPG, PNG, GIF, or WebP, up to 3MB each.
+- Choose portrait (9:16) or landscape (16:9) for your first preview.
+- Every other preview must have the same dimensions as the first one.
+- At least 1080px in width and height is recommended.
+
+## What's New
+
+<Columns cols={2}>
+  <Frame>
+    <img
+      src="/images/static/listing_page_imgs/whats-new.png"
+      alt="Pocket Address listing showing the What's new in this release section"
+    />
+  </Frame>
+</Columns>
+
+The **What's New** text you enter with each release appears on your listing. Use it to tell users what changed in that version.
+
+## App Info
+
+<Columns cols={2}>
+  <Frame>
+    <img
+      src="/images/static/listing_page_imgs/app-info.png"
+      alt="Pocket Address listing App Info section with developer website, terms of service, and privacy policy links"
+    />
+  </Frame>
+</Columns>
+
+The App Info section links to your developer website, terms of service, and privacy policy. Make sure each link is publicly reachable, as broken links are a [common reason for rejection](/dapp-store/submit-new-app#common-rejection-reasons).

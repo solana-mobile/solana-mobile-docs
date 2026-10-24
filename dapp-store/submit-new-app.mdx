@@ -3,83 +3,136 @@ title: "Submit a New App"
 description: "Use the [Solana dApp Publisher Portal](https://publish.solanamobile.com) to submit your dApp to the Solana dApp Store."
 ---
 
+<iframe
+  className="w-full aspect-video rounded-xl"
+  src="https://www.youtube.com/embed/T4KY6QVo_NY"
+  title="Publish Your App to the Solana dApp Store"
+  frameBorder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+></iframe>
+
 ## Before you begin
 
 Ensure you have:
 
-- A release-ready APK file signed with your release key.
-- App metadata prepared (name, description, screenshots, icon).
-- A Solana wallet browser extension (Phantom, Solflare, etc.) with sufficient SOL.
-- Reviewed the [Publisher Policy](#publisher-policy) and [Developer Agreement](#agreement)
+- A release APK signed with your release key. Debug builds are rejected, and the APK must support `arm64-v8a` and be at most 2 GB. See [Build and Sign an APK](/dapp-store/build-and-sign-an-apk).
+- Listing assets: a 512×512 icon with a background color (no transparency), a 1200×600 banner, and 4 to 8 screenshots. See the [Listing Page Guidelines](/dapp-store/listing-page-guidelines).
+- A public website about your app, your company, or you as the developer.
+- A terms of service and a privacy policy, each on its own publicly reachable HTTPS page.
+- A Solana wallet browser extension (Solflare, Phantom, etc.) with a small amount of SOL. Use a new wallet that you only use for publishing this app.
+- Reviewed the [Publisher Policy](/dapp-store/publisher-policy) and [Developer Agreement](/dapp-store/agreement).
+
+<Tip>
+  See [Pocket Address](https://github.com/beeman/pocket-address) for a complete
+  example: an app, its listing assets, and a website with a terms of service and
+  privacy policy.
+</Tip>
 
 ## 1. Sign up for a Publisher Account
 
-- Navigate to the [Publisher Portal](https://publish.solanamobile.com) and sign up for an account.
-- Fill out your publisher profile and submit your KYC/KYB verification.
+Navigate to the [Publisher Portal](https://publish.solanamobile.com) and sign up with your email address, name, and password. Enter the code sent to your email to log in.
 
-## 2. Connect your publisher wallet
+## 2. Create your publisher profile
 
-- Connect a Solana wallet via a browser extension wallet (e.g Phantom, Solflare, Backpack). This will be your _publisher wallet_.
-- Ensure the publisher wallet has sufficient SOL (~0.2 SOL) to cover transaction fees and ArDrive upload costs.
+Choose whether you are publishing as an individual or as an organization, then enter your name and website.
+
+Your website must be publicly reachable and about your app, your company, or you as the developer.
+
+<Frame>
+  <img
+    src="/images/static/publishing_portal/publisher-profile.png"
+    alt="Publisher Profile form with the individual option, name, and website filled in"
+  />
+</Frame>
+
+## 3. Verify your identity
+
+Complete KYC if you publish as an individual, or KYB if you publish as a company. You can skip this when you create your profile, but you can't add a dApp until you are approved.
+
+<Frame>
+  <img
+    src="/images/static/publishing_portal/verify-identity.png"
+    alt="Identity verification screen with KYC and KYB options and an approved status"
+  />
+</Frame>
+
+If you get stuck, get the **Developer** role in the `#developer` channel on [Discord](https://discord.gg/solanamobile), then open a **KYC / KYB Verification Issue** ticket in `#dev-answers`. Tickets are private to you and the Solana Mobile team.
+
+## 4. Connect your publisher wallet
+
+Press **Connect Wallet** and connect your wallet extension. This will be your _publisher wallet_.
+
+<Frame>
+  <img
+    src="/images/static/publishing_portal/connect-wallet.png"
+    alt="Publisher Portal prompting to connect a wallet before adding a dApp"
+  />
+</Frame>
 
 <Warning>
-**WARNING**
-
-Your publisher wallet is required for all future submissions of this app. Do not lose access to it or you will not be able
-to make new submissions of this app.
-
+  Your publisher wallet is required for all future submissions of this app. Do
+  not lose access to it or you will not be able to make new submissions of this
+  app.
 </Warning>
 
-## 3. Set a storage provider
+## 5. Add your dApp details
 
-Your storage provider selection determines where all your dApp assets (e.g APK file, Icon, Description, Preview Images/Videos, etc) are uploaded and stored during app submission.
+Fill out the form with your app details. The listing preview on the right shows how your app will look in the dApp Store.
 
-**ArDrive is recommended** for storage costs and ease of setup.
+- The **Package Name** must exactly match the application ID in your APK. It is case-sensitive, must not be used by another app, and can't be changed later.
+- Add your app website, support email, contact email, and the links to your terms of use and privacy policy. Every link must be a public HTTPS page; the portal checks each one.
 
-Use the storage cost tool to estimate the SOL amount required for upload based on your app's size.
+<Frame>
+  <img
+    src="/images/static/publishing_portal/dapp-details.png"
+    alt="dApp details form with website, emails, terms of use, and privacy policy links next to the listing preview"
+  />
+</Frame>
+
+Press **Save** and approve the transaction in your wallet. This mints your App NFT. To finish later without minting, press **Save and continue later**.
 
 <Note>
-  ArDrive uploads are paid from a storage balance, shown by the cost estimator
-  next to the estimated cost. If the remaining balance would go negative, use
-  **Top Up Balance** to fund it before submitting. AWS S3 uploads go to your own
-  bucket and have no balance to top up.
+  Uploads use Cloudflare R2 by default. To use ArDrive or AWS S3 instead,
+  change the storage provider in **Settings** > **Preferences**.
 </Note>
 
-<Frame>
-  <img src="/images/static/publishing_portal/storage-provider.png" />
-</Frame>
+See the [Listing Page Guidelines](/dapp-store/listing-page-guidelines) for detailed requirements.
 
-## 4. Add your dApp details
+## 6. Submit your first release version
 
-In the bottom-left menu, press "Add a dApp" > "New dApp" and a form will appear where you can input your app details.
+Go to **Releases** in the sidebar and press **New Version**.
 
 <Frame>
-  <img src="/images/static/publishing_portal/new-dapp-details.png" />
+  <img
+    src="/images/static/publishing_portal/releases-new-version.png"
+    alt="Empty Releases page with the New Version button"
+  />
 </Frame>
 
-Save the form once you've filled out the details. These details can be changed before submission and updated in later submissions.
-
-See [Listing Page Guidelines](#listing-page-guidelines) for detailed requirements.
-
-## 5. Submit your first release version
-
-After adding your dApp, navigate to the app's **Home** menu in the sidebar. In the top-right, press the "New Version" button to begin the APK upload process.
+Upload your signed APK or use an APK URL, then describe the release in **What's New**.
 
 <Frame>
-  <img src="/images/static/publishing_portal/home-new-version.png" />
+  <img
+    src="/images/static/publishing_portal/upload-release.png"
+    alt="Upload your dApp Release form with an APK file selected and the What's New field"
+  />
 </Frame>
 
-After uploading your APK and pressing "Submit", you will be prompted to sign multiple messages and transactions. These are required for uploading assets to Arweave and minting your release NFT.
+Press **Submit**. The portal processes your APK and publishes the release onchain. Approve each transaction in your wallet as it is requested.
 
 <Warning>
-**WARNING**
-
-Ensure you approve each signing request and you do not skip any or else certain assets could be missing from your app submission.
-
+  Ensure you approve each signing request and do not skip any, or your
+  submission will not complete.
 </Warning>
 
+Once processed, your release shows as **In Review**.
+
 <Frame>
-  <img src="/images/static/publishing_portal/dapp-apk-upload.png" />
+  <img
+    src="/images/static/publishing_portal/release-in-review.png"
+    alt="Release details page showing version 1.0.0 in review with its onchain details"
+  />
 </Frame>
 
 Congratulations on submitting your first app! 🎉
@@ -88,9 +141,25 @@ Congratulations on submitting your first app! 🎉
 
 Once submitted, your app automatically enters the app review queue and will go live immediately under an appropriate category once approved.
 
+<Frame>
+  <img
+    src="/images/static/publishing_portal/app-overview-live.png"
+    alt="App overview showing version 1.0.0 live and the store listing up to date"
+  />
+</Frame>
+
+### Common rejection reasons
+
+<Warning>
+
+- Your publisher website is unreachable or not about your app, your company, or you as the developer.
+- Your terms of service or privacy policy links are broken or not publicly reachable.
+
+</Warning>
+
 ### App Review
 
-- Review results are sent to your developer email from `publishersupport@dappstore.solanamobile.com` within 3-5 business days.
+- Review results are sent to your developer email from `publishersupport@dappstore.solanamobile.com` typically within 3-4 business days.
 - Apps are reviewed in the order they are submitted.
 - If you haven't received a response after 5 business days, submit an **App Review Inquiry** in the `#dev-answers` channel on [Discord](http://discord.gg/solanamobile).
 

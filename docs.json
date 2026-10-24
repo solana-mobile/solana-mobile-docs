@@ -187,6 +187,7 @@
             "pages": [
               "dapp-store/build-and-sign-an-apk",
               "dapp-store/publishing-from-google-play",
+              "dapp-store/listing-page-guidelines",
               "dapp-store/submit-new-app",
               "dapp-store/submit-an-update",
               "dapp-store/publishing-cli",

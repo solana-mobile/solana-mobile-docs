@@ -71,6 +71,15 @@ Add a `dapp-store` build profile to your `eas.json`:
 ## 2. Build the APK
 
 <Tabs>
+<Tab title="Local Build">
+
+```bash
+eas build --platform android --profile dapp-store --local
+```
+
+The build runs on your machine and needs macOS or Linux. It requires the [Android SDK and NDK](https://docs.expo.dev/get-started/set-up-your-environment/?mode=development-build&buildEnv=local) installed locally. The APK is output to the project directory. On Windows, use EAS Cloud instead.
+
+</Tab>
 <Tab title="EAS Cloud">
 
 ```bash
@@ -78,15 +87,6 @@ eas build --platform android --profile dapp-store
 ```
 
 The build runs on EAS servers. Once finished, download the APK from the link provided.
-
-</Tab>
-<Tab title="Local Build">
-
-```bash
-eas build --platform android --profile dapp-store --local
-```
-
-The build runs on your machine. Requires the [Android SDK and NDK](https://docs.expo.dev/get-started/set-up-your-environment/?mode=development-build&buildEnv=local) installed locally. The APK is output to the project directory.
 
 </Tab>
 </Tabs>
