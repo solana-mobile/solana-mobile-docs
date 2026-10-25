@@ -23,30 +23,36 @@ This will also fix connection related issues with Mobile Wallet Adapter.
 
 ### Example: Connect Button
 
-```typescript
-import { useWallet } from '@solana/wallet-adapter-react'
-import { useWalletModal } from '@solana/wallet-adapter-react-ui';
-import { SolanaMobileWalletAdapterWalletName } from '@solana-mobile/wallet-standard-mobile'
+```tsx twoslash
+import { SolanaMobileWalletAdapterWalletName } from "@solana-mobile/wallet-standard-mobile";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 
 export default function ConnectButton() {
-    const { connected, connect, select, wallet, wallets } = useWallet();
-    const { setVisible: showWalletSelectionModal } = useWalletModal();
-    const mobileWalletAdapter = wallets.find((w) => w.adapter.name === SolanaMobileWalletAdapterWalletName);
+  const { connect, connected, select, wallet, wallets } = useWallet();
+  const { setVisible: showWalletSelectionModal } = useWalletModal();
+  const mobileWalletAdapter = wallets.find(
+    (w) => w.adapter.name === SolanaMobileWalletAdapterWalletName,
+  );
 
-    const handleConnectClick = async () => {
-        // MWA is only available if user is on Android Web environments (e.g. Android Chrome).
-        if (wallet?.adapter?.name === SolanaMobileWalletAdapterWalletName) {
-            // If already selected, immediately connect.
-            await connect();
-        } else if (mobileWalletAdapter) {
-            // If MWA is not selected, but available, select it instead of showing modal.
-            select(mobileWalletAdapter.adapter.name)
-        } else {
-            // Else, show modal as usual.
-            showWalletSelectionModal(true)
-        }
+  const handleConnectClick = async () => {
+    // MWA is only available if user is on Android Web environments (e.g. Android Chrome).
+    if (wallet?.adapter?.name === SolanaMobileWalletAdapterWalletName) {
+      // If already selected, immediately connect.
+      await connect();
+    } else if (mobileWalletAdapter) {
+      // If MWA is not selected, but available, select it instead of showing modal.
+      select(mobileWalletAdapter.adapter.name);
+    } else {
+      // Else, show modal as usual.
+      showWalletSelectionModal(true);
     }
-    return <button type="button" disabled={connected} onClick={handleConnectClick}>Connect</button>;
+  };
+  return (
+    <button type="button" disabled={connected} onClick={handleConnectClick}>
+      Connect
+    </button>
+  );
 }
 ```
 
@@ -66,33 +72,44 @@ Mobile Wallet Adapter always supports the `signIn` method which invokes a `conne
 
 ### Example: Sign In Button
 
-```typescript
-import { useWallet } from '@solana/wallet-adapter-react'
-import { useWalletModal } from '@solana/wallet-adapter-react-ui';
-import { SolanaMobileWalletAdapterWalletName } from '@solana-mobile/wallet-standard-mobile'
-import type { SolanaSignInInput } from '@solana/wallet-standard-features'
+```tsx twoslash
+import { SolanaMobileWalletAdapterWalletName } from "@solana-mobile/wallet-standard-mobile";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
+import type { SolanaSignInInput } from "@solana/wallet-standard-features";
 
 export default function SignInButton() {
-    const { connected, signIn, wallet } = useWallet();
-    const { setVisible: showWalletSelectionModal } = useWalletModal();
+  const { connected, signIn, wallet } = useWallet();
+  const { setVisible: showWalletSelectionModal } = useWalletModal();
 
-    const handleSignInButtonClick = async () => {
-        // MWA is only available if user is on Android Web environments (e.g. Android Chrome).
-        // MWA always supports signIn, the check only narrows the type.
-        if (wallet?.adapter?.name === SolanaMobileWalletAdapterWalletName && signIn) {
-            // If MWA is present, immediately sign in.
-            const input: SolanaSignInInput = {
-                domain: window.location.host,
-                statement: "Sign in to My Web App",
-                uri: window.location.origin,
-            }
-            const output = await signIn(input);
-        } else {
-            // Else, show modal as usual.
-            showWalletSelectionModal(true)
-        }
+  const handleSignInButtonClick = async () => {
+    // MWA is only available if user is on Android Web environments (e.g. Android Chrome).
+    // MWA always supports signIn, the check only narrows the type.
+    if (
+      wallet?.adapter?.name === SolanaMobileWalletAdapterWalletName &&
+      signIn
+    ) {
+      // If MWA is present, immediately sign in.
+      const input: SolanaSignInInput = {
+        domain: window.location.host,
+        statement: "Sign in to My Web App",
+        uri: window.location.origin,
+      };
+      const output = await signIn(input);
+    } else {
+      // Else, show modal as usual.
+      showWalletSelectionModal(true);
     }
-    return <button type="button" disabled={connected} onClick={handleSignInButtonClick}>Sign In</button>;
+  };
+  return (
+    <button
+      type="button"
+      disabled={connected}
+      onClick={handleSignInButtonClick}
+    >
+      Sign In
+    </button>
+  );
 }
 ```
 
@@ -104,20 +121,28 @@ This descriptive text helps your users understand that this option will allow th
 
 ### Example: Wallet List Item Component
 
-```typescript
-import type { Wallet } from '@solana/wallet-adapter-react'
-import { SolanaMobileWalletAdapterWalletName } from '@solana-mobile/wallet-standard-mobile'
+```tsx twoslash
+import { SolanaMobileWalletAdapterWalletName } from "@solana-mobile/wallet-standard-mobile";
+import type { Wallet } from "@solana/wallet-adapter-react";
 
-export default function WalletListItem({ wallet, onPress }: { wallet: Wallet; onPress: () => void }) {
-    // If we are showing MWA, use a descriptive display name.
-    const displayName = (wallet.adapter.name === SolanaMobileWalletAdapterWalletName)
-                        ? `Use Installed Wallet` : wallet.adapter.name
-    return (
+export default function WalletListItem({
+  onPress,
+  wallet,
+}: {
+  onPress: () => void;
+  wallet: Wallet;
+}) {
+  // If we are showing MWA, use a descriptive display name.
+  const displayName =
+    wallet.adapter.name === SolanaMobileWalletAdapterWalletName
+      ? `Use Installed Wallet`
+      : wallet.adapter.name;
+  return (
     <button type="button" onClick={onPress}>
-        {displayName}
+      {displayName}
     </button>
-    );
-};
+  );
+}
 ```
 
 <FooterDisclaimer />
