@@ -1,10 +1,10 @@
 ---
-title: "Quickstart"
-description: "Usage examples for connecting to wallets, signing messages, and sending transactions with useMobileWallet."
-sidebarTitle: "Quickstart"
+title: 'Quickstart'
+description: 'Usage examples for connecting to wallets, signing messages, and sending transactions with useMobileWallet.'
+sidebarTitle: 'Quickstart'
 ---
 
-import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+import { FooterDisclaimer } from '/snippets/footer-disclaimer.mdx'
 
 This page demonstrates how to use each method from the `useMobileWallet` hook. Make sure you have completed the [Installation](/get-started/react-native/installation) and [Setup](/get-started/react-native/setup) steps first.
 
@@ -18,16 +18,16 @@ Use `connect` to initiate a wallet connection and `disconnect` to end it. The `a
 <Tab title="@solana/kit">
 
 ```tsx
-import { useMobileWallet } from "@wallet-ui/react-native-kit";
+import { useMobileWallet } from '@wallet-ui/react-native-kit'
 
 function ConnectButton() {
-  const { account, connect, disconnect } = useMobileWallet();
+  const { account, connect, disconnect } = useMobileWallet()
 
   if (account) {
-    return <Button title="Disconnect" onPress={disconnect} />;
+    return <Button title="Disconnect" onPress={disconnect} />
   }
 
-  return <Button title="Connect Wallet" onPress={connect} />;
+  return <Button title="Connect Wallet" onPress={connect} />
 }
 ```
 
@@ -35,16 +35,16 @@ function ConnectButton() {
 <Tab title="@solana/web3.js">
 
 ```tsx
-import { useMobileWallet } from "@wallet-ui/react-native-web3js";
+import { useMobileWallet } from '@wallet-ui/react-native-web3js'
 
 function ConnectButton() {
-  const { account, connect, disconnect } = useMobileWallet();
+  const { account, connect, disconnect } = useMobileWallet()
 
   if (account) {
-    return <Button title="Disconnect" onPress={disconnect} />;
+    return <Button title="Disconnect" onPress={disconnect} />
   }
 
-  return <Button title="Connect Wallet" onPress={connect} />;
+  return <Button title="Connect Wallet" onPress={connect} />
 }
 ```
 
@@ -59,18 +59,18 @@ Use `signMessages` to request the wallet to sign an arbitrary byte payload. This
 <Tab title="@solana/kit">
 
 ```tsx
-import { useMobileWallet } from "@wallet-ui/react-native-kit";
+import { useMobileWallet } from '@wallet-ui/react-native-kit'
 
 function SignMessageButton() {
-  const { signMessages } = useMobileWallet();
+  const { signMessages } = useMobileWallet()
 
   const handleSignMessage = async () => {
-    const messageBytes = new TextEncoder().encode("Verify this message");
-    const signature = await signMessages(messageBytes);
-    console.log("Signature:", signature);
-  };
+    const messageBytes = new TextEncoder().encode('Verify this message')
+    const signature = await signMessages(messageBytes)
+    console.log('Signature:', signature)
+  }
 
-  return <Button title="Sign Message" onPress={handleSignMessage} />;
+  return <Button title="Sign Message" onPress={handleSignMessage} />
 }
 ```
 
@@ -78,18 +78,18 @@ function SignMessageButton() {
 <Tab title="@solana/web3.js">
 
 ```tsx
-import { useMobileWallet } from "@wallet-ui/react-native-web3js";
+import { useMobileWallet } from '@wallet-ui/react-native-web3js'
 
 function SignMessageButton() {
-  const { signMessages } = useMobileWallet();
+  const { signMessages } = useMobileWallet()
 
   const handleSignMessage = async () => {
-    const messageBytes = new TextEncoder().encode("Verify this message");
-    const signature = await signMessages(messageBytes);
-    console.log("Signature:", signature);
-  };
+    const messageBytes = new TextEncoder().encode('Verify this message')
+    const signature = await signMessages(messageBytes)
+    console.log('Signature:', signature)
+  }
 
-  return <Button title="Sign Message" onPress={handleSignMessage} />;
+  return <Button title="Sign Message" onPress={handleSignMessage} />
 }
 ```
 
@@ -110,23 +110,23 @@ Use `signIn` to connect to a wallet and verify ownership in a single step. This 
 <Tab title="@solana/kit">
 
 ```tsx
-import { useMobileWallet } from "@wallet-ui/react-native-kit";
+import { useMobileWallet } from '@wallet-ui/react-native-kit'
 
 function SignInButton() {
-  const { account, chain, identity, signIn } = useMobileWallet();
+  const { account, chain, identity, signIn } = useMobileWallet()
 
   const handleSignIn = async () => {
     const result = await signIn({
       address: account?.address,
       chainId: chain,
-      domain: "your-app-domain.com",
-      statement: "Sign in to Your App",
+      domain: 'your-app-domain.com',
+      statement: 'Sign in to Your App',
       uri: identity.uri,
-    });
-    console.log("Signed in:", result.account.address);
-  };
+    })
+    console.log('Signed in:', result.account.address)
+  }
 
-  return <Button title="Sign In" onPress={handleSignIn} />;
+  return <Button title="Sign In" onPress={handleSignIn} />
 }
 ```
 
@@ -134,23 +134,23 @@ function SignInButton() {
 <Tab title="@solana/web3.js">
 
 ```tsx
-import { useMobileWallet } from "@wallet-ui/react-native-web3js";
+import { useMobileWallet } from '@wallet-ui/react-native-web3js'
 
 function SignInButton() {
-  const { account, chain, identity, signIn } = useMobileWallet();
+  const { account, chain, identity, signIn } = useMobileWallet()
 
   const handleSignIn = async () => {
     const result = await signIn({
       address: account?.address.toString(),
       chainId: chain,
-      domain: "your-app-domain.com",
-      statement: "Sign in to Your App",
+      domain: 'your-app-domain.com',
+      statement: 'Sign in to Your App',
       uri: identity.uri,
-    });
-    console.log("Signed in:", result.account.address.toString());
-  };
+    })
+    console.log('Signed in:', result.account.address.toString())
+  }
 
-  return <Button title="Sign In" onPress={handleSignIn} />;
+  return <Button title="Sign In" onPress={handleSignIn} />
 }
 ```
 
@@ -172,23 +172,23 @@ Request the wallet to sign a transaction and submit it to the Solana network. Bo
 `sendTransactions` takes instructions and handles fetching the blockhash, compiling the transaction, signing, and sending.
 
 ```tsx
-import { getAddMemoInstruction } from "@solana-program/memo";
-import { Instruction } from "@solana/kit";
-import { useMobileWallet } from "@wallet-ui/react-native-kit";
+import { getAddMemoInstruction } from '@solana-program/memo'
+import { Instruction } from '@solana/kit'
+import { useMobileWallet } from '@wallet-ui/react-native-kit'
 
 function SendTransactionButton() {
-  const { sendTransactions } = useMobileWallet();
+  const { sendTransactions } = useMobileWallet()
 
   const handleSendTransaction = async () => {
     const instructions: Instruction[] = [
-      getAddMemoInstruction({ memo: "gm from Mobile Wallet Adapter" }),
-    ];
+      getAddMemoInstruction({ memo: 'gm from Mobile Wallet Adapter' }),
+    ]
 
-    const signature = await sendTransactions(instructions);
-    console.log("Transaction signature:", signature);
-  };
+    const signature = await sendTransactions(instructions)
+    console.log('Transaction signature:', signature)
+  }
 
-  return <Button title="Send Transaction" onPress={handleSendTransaction} />;
+  return <Button title="Send Transaction" onPress={handleSendTransaction} />
 }
 ```
 
@@ -198,43 +198,40 @@ function SendTransactionButton() {
 `signAndSendTransactions` takes a built transaction plus the `minContextSlot` the blockhash was fetched at, so compile the transaction yourself.
 
 ```tsx
-import { createMemoInstruction } from "@solana/spl-memo";
-import { TransactionMessage, VersionedTransaction } from "@solana/web3.js";
-import { useMobileWallet } from "@wallet-ui/react-native-web3js";
+import { createMemoInstruction } from '@solana/spl-memo'
+import { TransactionMessage, VersionedTransaction } from '@solana/web3.js'
+import { useMobileWallet } from '@wallet-ui/react-native-web3js'
 
 function SendTransactionButton() {
-  const { account, connection, signAndSendTransactions } = useMobileWallet();
+  const { account, connection, signAndSendTransactions } = useMobileWallet()
 
   const handleSendTransaction = async () => {
-    if (!account) return;
+    if (!account) return
 
     const {
       context: { slot: minContextSlot },
       value: latestBlockhash,
-    } = await connection.getLatestBlockhashAndContext();
+    } = await connection.getLatestBlockhashAndContext()
 
     const message = new TransactionMessage({
       payerKey: account.address,
       recentBlockhash: latestBlockhash.blockhash,
-      instructions: [createMemoInstruction("gm from Mobile Wallet Adapter")],
-    }).compileToLegacyMessage();
+      instructions: [createMemoInstruction('gm from Mobile Wallet Adapter')],
+    }).compileToLegacyMessage()
 
-    const transaction = new VersionedTransaction(message);
+    const transaction = new VersionedTransaction(message)
 
-    const signature = await signAndSendTransactions(
-      transaction,
-      minContextSlot,
-    );
+    const signature = await signAndSendTransactions(transaction, minContextSlot)
 
     await connection.confirmTransaction(
       { signature, ...latestBlockhash },
-      "confirmed",
-    );
+      'confirmed',
+    )
 
-    console.log("Transaction signature:", signature);
-  };
+    console.log('Transaction signature:', signature)
+  }
 
-  return <Button title="Send Transaction" onPress={handleSendTransaction} />;
+  return <Button title="Send Transaction" onPress={handleSendTransaction} />
 }
 ```
 

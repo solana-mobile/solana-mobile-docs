@@ -1,10 +1,10 @@
 /* Normalize card image heights in sample app collection */
-img[src*="sample_app_imgs"] {
+img[src*='sample_app_imgs'] {
   min-height: 200px;
   object-fit: cover;
 }
 
-li[id="topbar-cta-button"] > a > div > span {
+li[id='topbar-cta-button'] > a > div > span {
   color: #000000 !important;
 }
 img.no-zoom {
@@ -13,14 +13,14 @@ img.no-zoom {
   pointer-events: auto;
 }
 
-li[id="topbar-cta-button"] > a > div > span {
+li[id='topbar-cta-button'] > a > div > span {
   color: #000000 !important;
 }
-li[id="topbar-cta-button"] > a > div > svg > path {
+li[id='topbar-cta-button'] > a > div > svg > path {
   stroke: #000000 !important;
 }
 
-.dark li[id="topbar-cta-button"] > a > div > span {
+.dark li[id='topbar-cta-button'] > a > div > span {
   color: #000000 !important;
 }
 

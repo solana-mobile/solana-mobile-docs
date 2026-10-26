@@ -1,9 +1,9 @@
 ---
-title: "Migrate to Wallet Standard"
-description: "On the web, Mobile Wallet Adapter (MWA) is available as a *standard wallet* with the package:"
+title: 'Migrate to Wallet Standard'
+description: 'On the web, Mobile Wallet Adapter (MWA) is available as a *standard wallet* with the package:'
 ---
 
-import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+import { FooterDisclaimer } from '/snippets/footer-disclaimer.mdx'
 
 - [`@solana-mobile/wallet-standard-mobile`](https://github.com/solana-mobile/mobile-wallet-adapter/tree/main/js/packages/wallet-standard-mobile)
 
@@ -39,16 +39,16 @@ Ensure `registerMwa` is invoked in a non-SSR context. if you're using a framewor
 ```ts expandable
 // 'use client' - If using Next.js, ensure it is registered in a non-SSR context.
 
-import { registerMwa } from "@solana-mobile/wallet-standard-mobile";
+import { registerMwa } from '@solana-mobile/wallet-standard-mobile'
 
 registerMwa({
   appIdentity: {
-    name: "My app",
-    uri: "https://myapp.io",
-    icon: "relative/path/to/icon.png", // resolves to https://myapp.io/relative/path/to/icon.png
+    name: 'My app',
+    uri: 'https://myapp.io',
+    icon: 'relative/path/to/icon.png', // resolves to https://myapp.io/relative/path/to/icon.png
   },
-  chains: ["solana:devnet", "solana:mainnet"],
-});
+  chains: ['solana:devnet', 'solana:mainnet'],
+})
 ```
 
 Now, `Mobile Wallet Adapter` will appear as a wallet option.

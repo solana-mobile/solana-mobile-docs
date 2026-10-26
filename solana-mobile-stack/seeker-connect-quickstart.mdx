@@ -1,11 +1,11 @@
 ---
-title: "Quickstart"
-sidebarTitle: "Quickstart"
-description: "Install Seeker Connect and add a branded wallet connect flow to your app."
+title: 'Quickstart'
+sidebarTitle: 'Quickstart'
+description: 'Install Seeker Connect and add a branded wallet connect flow to your app.'
 ---
 
-import { RelayUrl } from "/snippets/relay-url.mdx";
-import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+import { RelayUrl } from '/snippets/relay-url.mdx'
+import { FooterDisclaimer } from '/snippets/footer-disclaimer.mdx'
 
 Connect your app directly to a Solana Mobile certified device's own wallet. Expo / React Native comes first, then Kotlin, then web.
 
@@ -35,18 +35,18 @@ Rebuild the development client, then configure once and connect:
 import {
   SeekerConnect,
   SeekerConnectButton,
-} from "@solana-mobile/seeker-connect-react-native";
+} from '@solana-mobile/seeker-connect-react-native'
 
 await SeekerConnect.configure({
   identity: {
-    name: "My App",
-    uri: "https://myapp.example.com",
-    icon: "favicon.ico",
+    name: 'My App',
+    uri: 'https://myapp.example.com',
+    icon: 'favicon.ico',
   },
-});
+})
 
-const authorization = await SeekerConnect.connect();
-console.log("connected as", authorization.accounts[0]?.address);
+const authorization = await SeekerConnect.connect()
+console.log('connected as', authorization.accounts[0]?.address)
 ```
 
 `identity.uri` must be an `https` URL. The wallet shows its host when asking for consent, and ends the session for a custom scheme such as `myapp://`. `icon` is resolved relative to `identity.uri`, so the example points at `https://myapp.example.com/favicon.ico`.
@@ -166,12 +166,12 @@ Seeker Connect utilizes Mobile Wallet Adapter's extended remote communication pr
 Call `registerSeekerConnect` once, early in your app's lifecycle. It adds the wallet to the page's Wallet Standard registry.
 
 ```ts
-import { registerSeekerConnect } from "@solana-mobile/seeker-connect-wallet-standard";
+import { registerSeekerConnect } from '@solana-mobile/seeker-connect-wallet-standard'
 
 registerSeekerConnect({
-  identity: { name: "My App", uri: window.location.origin, icon: "/icon.png" },
-  relayDomain: "<relay-domain>",
-});
+  identity: { name: 'My App', uri: window.location.origin, icon: '/icon.png' },
+  relayDomain: '<relay-domain>',
+})
 ```
 
 </Step>
@@ -181,12 +181,12 @@ registerSeekerConnect({
 Find Seeker Connect like any other Wallet Standard wallet.
 
 ```ts
-import { getWallets } from "@wallet-standard/app";
-import { SeekerConnectWalletName } from "@solana-mobile/seeker-connect-wallet-standard";
+import { getWallets } from '@wallet-standard/app'
+import { SeekerConnectWalletName } from '@solana-mobile/seeker-connect-wallet-standard'
 
 const wallet = getWallets()
   .get()
-  .find((w) => w.name === SeekerConnectWalletName);
+  .find((w) => w.name === SeekerConnectWalletName)
 ```
 
 </Step>
@@ -196,10 +196,10 @@ const wallet = getWallets()
 `connect()` launches the wallet for user consent on the first connection, then returns the authorized accounts.
 
 ```ts
-import { StandardConnect } from "@wallet-standard/features";
+import { StandardConnect } from '@wallet-standard/features'
 
-const { accounts } = await wallet.features[StandardConnect].connect();
-console.log("connected as", accounts[0]?.address);
+const { accounts } = await wallet.features[StandardConnect].connect()
+console.log('connected as', accounts[0]?.address)
 ```
 
 </Step>

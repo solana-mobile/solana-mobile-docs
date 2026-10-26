@@ -1,12 +1,12 @@
 ---
 title: Mobile Wallet Adapter Typescript Reference
 sidebarTitle: Typescript Reference
-description: "Connect to wallet apps and sign transactions and messages with the Mobile Wallet Adapter API."
+description: 'Connect to wallet apps and sign transactions and messages with the Mobile Wallet Adapter API.'
 ---
 
-import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+import { FooterDisclaimer } from '/snippets/footer-disclaimer.mdx'
 
-import { Button } from "/snippets/button.mdx";
+import { Button } from '/snippets/button.mdx'
 
 <Button href="#mobile-wallet-api-methods">API Reference</Button>
 
@@ -100,7 +100,7 @@ bun add \
 import {
   KitMobileWallet,
   transact,
-} from "@solana-mobile/mobile-wallet-adapter-protocol-kit";
+} from '@solana-mobile/mobile-wallet-adapter-protocol-kit'
 ```
 
 </Tab>
@@ -110,7 +110,7 @@ import {
 import {
   transact,
   Web3MobileWallet,
-} from "@solana-mobile/mobile-wallet-adapter-protocol-web3js";
+} from '@solana-mobile/mobile-wallet-adapter-protocol-web3js'
 ```
 
 </Tab>
@@ -161,8 +161,8 @@ The result will be a `Promise<TReturn>` with `TReturn` equal to what is returned
 
 ```tsx
 const result = await transact(async (wallet: KitMobileWallet) => {
-  /* ...Issue MWA requests... */ return "done";
-});
+  /* ...Issue MWA requests... */ return 'done'
+})
 ```
 
 </Tab>
@@ -170,8 +170,8 @@ const result = await transact(async (wallet: KitMobileWallet) => {
 
 ```tsx
 const result = await transact(async (wallet: Web3MobileWallet) => {
-  /* ...Issue MWA requests... */ return "done";
-});
+  /* ...Issue MWA requests... */ return 'done'
+})
 ```
 
 </Tab>
@@ -180,7 +180,7 @@ const result = await transact(async (wallet: Web3MobileWallet) => {
 ### Return:
 
 ```tsx
-console.log(result); // "done"
+console.log(result) // "done"
 ```
 
 ## authorize
@@ -255,15 +255,15 @@ The result will be a JSON object containing the following fields:
 ```tsx
 const result = await transact(async (wallet: KitMobileWallet) => {
   const authResult = await wallet.authorize({
-    chain: "solana:devnet",
+    chain: 'solana:devnet',
     identity: {
-      name: "Example dApp",
-      uri: "https://yourdapp.com",
-      icon: "favicon.ico", // Resolves to https://yourdapp.com/favicon.ico
+      name: 'Example dApp',
+      uri: 'https://yourdapp.com',
+      icon: 'favicon.ico', // Resolves to https://yourdapp.com/favicon.ico
     },
-  });
-  return authResult;
-});
+  })
+  return authResult
+})
 ```
 
 </Tab>
@@ -272,21 +272,21 @@ const result = await transact(async (wallet: KitMobileWallet) => {
 ```tsx
 const result = await transact(async (wallet: Web3MobileWallet) => {
   const authResult = await wallet.authorize({
-    chain: "solana:devnet",
+    chain: 'solana:devnet',
     identity: {
-      name: "Example dApp",
-      uri: "https://yourdapp.com",
-      icon: "favicon.ico", // Resolves to https://yourdapp.com/favicon.ico
+      name: 'Example dApp',
+      uri: 'https://yourdapp.com',
+      icon: 'favicon.ico', // Resolves to https://yourdapp.com/favicon.ico
     },
-  });
-  return authResult;
-});
+  })
+  return authResult
+})
 ```
 
 </Tab>
 </Tabs>
 
-### Result:[​](/get-started/react-native/mobile-wallet-adapter/#result-1 "Direct link to Result:")
+### Result:[​](/get-started/react-native/mobile-wallet-adapter/#result-1 'Direct link to Result:')
 
 ```json
 {
@@ -335,20 +335,20 @@ The result will be an empty JSON object.
 <Tab title="@solana/kit">
 
 ```tsx
-const authToken = getPreviouslyStoredAuthToken();
+const authToken = getPreviouslyStoredAuthToken()
 const result = await transact(async (wallet: KitMobileWallet) => {
-  return await wallet.deauthorize({ auth_token: authToken });
-});
+  return await wallet.deauthorize({ auth_token: authToken })
+})
 ```
 
 </Tab>
 <Tab title="@solana/web3.js">
 
 ```tsx
-const authToken = getPreviouslyStoredAuthToken();
+const authToken = getPreviouslyStoredAuthToken()
 const result = await transact(async (wallet: Web3MobileWallet) => {
-  return await wallet.deauthorize({ auth_token: authToken });
-});
+  return await wallet.deauthorize({ auth_token: authToken })
+})
 ```
 
 </Tab>
@@ -384,8 +384,8 @@ The result will be a JSON object as defined in `authorize`, but the values may b
 
 ```tsx
 const result = await transact(async (wallet: KitMobileWallet) => {
-  return await wallet.getCapabilities();
-});
+  return await wallet.getCapabilities()
+})
 ```
 
 </Tab>
@@ -393,14 +393,14 @@ const result = await transact(async (wallet: KitMobileWallet) => {
 
 ```tsx
 const result = await transact(async (wallet: Web3MobileWallet) => {
-  return await wallet.getCapabilities();
-});
+  return await wallet.getCapabilities()
+})
 ```
 
 </Tab>
 </Tabs>
 
-### Result:[​](/reference/typescript/#result-1 "Direct link to Result:")
+### Result:[​](/reference/typescript/#result-1 'Direct link to Result:')
 
 ```json
 {
@@ -440,19 +440,19 @@ The minimum slot number at which to perform preflight transaction checks.
 ```tsx
 const result = await transact(async (wallet: KitMobileWallet) => {
   const authResult = await wallet.authorize({
-    chain: "solana:devnet",
+    chain: 'solana:devnet',
     identity: APP_IDENTITY,
-  });
+  })
 
-  const transferTransactionMessage = getTransferTransactionMessage(authResult);
+  const transferTransactionMessage = getTransferTransactionMessage(authResult)
 
   // Signs the transaction message with the private key of the authorized
   // account and submits it to the network.
   const transactionSignatures = await wallet.signAndSendTransactions({
     transactions: [transferTransactionMessage],
-  });
-  return transactionSignatures;
-});
+  })
+  return transactionSignatures
+})
 ```
 
 </Tab>
@@ -461,15 +461,15 @@ const result = await transact(async (wallet: KitMobileWallet) => {
 ```tsx
 const result = await transact(async (wallet: Web3MobileWallet) => {
   const authResult = await wallet.authorize({
-    chain: "solana:devnet",
+    chain: 'solana:devnet',
     identity: APP_IDENTITY,
-  });
+  })
 
-  const publicKey = getPublicKeyFromAuth(authResult);
+  const publicKey = getPublicKeyFromAuth(authResult)
 
   // Create a web3.js Transaction that transfers
   // lamports to a randomly created address.
-  const keypair = Keypair.generate();
+  const keypair = Keypair.generate()
   const randomTransferTransaction = new Transaction({
     ...latestBlockhash,
     feePayer: publicKey,
@@ -479,15 +479,15 @@ const result = await transact(async (wallet: Web3MobileWallet) => {
       toPubkey: keypair.publicKey,
       lamports: 1_000_000,
     }),
-  );
+  )
 
   // Signs the Transactions with the private key of the account
   // corresponding to `publicKey` and submits to the network.
   const transactionSignatures = await wallet.signAndSendTransactions({
     transactions: [randomTransferTransaction],
-  });
-  return transactionSignatures;
-});
+  })
+  return transactionSignatures
+})
 ```
 
 </Tab>
@@ -521,18 +521,18 @@ An array of one or more transactions to sign. With `@solana/kit`, each item is a
 ```tsx
 const result = await transact(async (wallet: KitMobileWallet) => {
   const authResult = await wallet.authorize({
-    chain: "solana:devnet",
+    chain: 'solana:devnet',
     identity: APP_IDENTITY,
-  });
+  })
 
-  const transferTransaction = getTransferTransaction(authResult);
+  const transferTransaction = getTransferTransaction(authResult)
 
   // Signs the transaction with the private key of the authorized account.
   const signedTransactions = await wallet.signTransactions({
     transactions: [transferTransaction],
-  });
-  return signedTransactions;
-});
+  })
+  return signedTransactions
+})
 ```
 
 </Tab>
@@ -541,15 +541,15 @@ const result = await transact(async (wallet: KitMobileWallet) => {
 ```tsx
 const result = await transact(async (wallet: Web3MobileWallet) => {
   const authResult = await wallet.authorize({
-    chain: "solana:devnet",
+    chain: 'solana:devnet',
     identity: APP_IDENTITY,
-  });
+  })
 
-  const publicKey = getPublicKeyFromAuth(authResult);
+  const publicKey = getPublicKeyFromAuth(authResult)
 
   // Create a web3.js Transaction that transfers
   // lamports to a randomly created address.
-  const keypair = Keypair.generate();
+  const keypair = Keypair.generate()
   const randomTransferTransaction = new Transaction({
     ...latestBlockhash,
     feePayer: publicKey,
@@ -559,15 +559,15 @@ const result = await transact(async (wallet: Web3MobileWallet) => {
       toPubkey: keypair.publicKey,
       lamports: 1_000,
     }),
-  );
+  )
 
   // Signs the Transactions with the private key of the account
   // corresponding to `publicKey`.
   const signedTransactions = await wallet.signTransactions({
     transactions: [randomTransferTransaction],
-  });
-  return signedTransactions;
-});
+  })
+  return signedTransactions
+})
 ```
 
 </Tab>
@@ -605,22 +605,22 @@ One or more byte arrays where each byte array is a message payload to sign.
 ```tsx
 const result = await transact(async (wallet: KitMobileWallet) => {
   // First, request authorization from the wallet.
-  const authorizationResult = await authorizeSession(wallet);
+  const authorizationResult = await authorizeSession(wallet)
 
   // Construct a message byte array.
-  const message = "Hello world!";
+  const message = 'Hello world!'
   const messageBuffer = new Uint8Array(
-    message.split("").map((c) => c.charCodeAt(0)),
-  );
+    message.split('').map((c) => c.charCodeAt(0)),
+  )
 
   // Sign the payload with the provided address from authorization.
   const signedMessages = await wallet.signMessages({
     addresses: [authorizationResult.address],
     payloads: [messageBuffer],
-  });
+  })
 
-  return signedMessages;
-});
+  return signedMessages
+})
 ```
 
 </Tab>
@@ -629,22 +629,22 @@ const result = await transact(async (wallet: KitMobileWallet) => {
 ```tsx
 const result = await transact(async (wallet: Web3MobileWallet) => {
   // First, request authorization from the wallet.
-  const authorizationResult = await authorizeSession(wallet);
+  const authorizationResult = await authorizeSession(wallet)
 
   // Construct a message byte array.
-  const message = "Hello world!";
+  const message = 'Hello world!'
   const messageBuffer = new Uint8Array(
-    message.split("").map((c) => c.charCodeAt(0)),
-  );
+    message.split('').map((c) => c.charCodeAt(0)),
+  )
 
   // Sign the payload with the provided address from authorization.
   const signedMessages = await wallet.signMessages({
     addresses: [authorizationResult.address],
     payloads: [messageBuffer],
-  });
+  })
 
-  return signedMessages;
-});
+  return signedMessages
+})
 ```
 
 </Tab>

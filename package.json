@@ -7,7 +7,8 @@
     "@types/react": "^19.3.0",
     "lefthook": "^2.1.8",
     "mint": "^4.2.578",
-    "prettier": "3.8.3",
+    "oxfmt": "^0.74.0",
+    "oxlint": "^1.89.0",
     "react": "19.2.3",
     "twoslash": "^0.3.9",
     "typescript": "^6.0.3"
@@ -21,8 +22,9 @@
     "check:onchain": "bun .scripts/check-onchain.ts",
     "check:snippets": "bun .scripts/check-snippets.ts",
     "dev": "mint dev",
-    "format": "prettier --write \"**/*.{css,json,jsonc,md,mdx,yaml,yml}\"",
-    "format:check": "prettier --check \"**/*.{css,json,jsonc,md,mdx,yaml,yml}\"",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "lint": "oxlint --deny-warnings",
     "prepare": "lefthook install",
     "test": "bun test ./.scripts"
   }

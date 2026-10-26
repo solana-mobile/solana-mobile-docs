@@ -1,10 +1,10 @@
 ---
-title: "Seeker Genesis Token"
-sidebarTitle: "Seeker Genesis Token"
-description: "The Seeker Genesis Token is a unique NFT that represents a verified owner of a Seeker device."
+title: 'Seeker Genesis Token'
+sidebarTitle: 'Seeker Genesis Token'
+description: 'The Seeker Genesis Token is a unique NFT that represents a verified owner of a Seeker device.'
 ---
 
-import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+import { FooterDisclaimer } from '/snippets/footer-disclaimer.mdx'
 
 The Seeker Genesis Token is a unique NFT that represents a verified owner of a [Seeker](/solana-mobile-stack/seeker) device. It can only be minted once per device and is minted into the primary account in a user's [Seed Vault Wallet](/solana-mobile-stack/seed-vault).
 
@@ -61,15 +61,15 @@ npm install @solana-mobile/skr-genesis-token @solana/kit
 The [Anti-Sybil Example](#anti-sybil-example-in-app-rewards-claim) above requires recording each SGT's mint address, so use `getSeekerGenesisTokens` to get the mints rather than a boolean. A wallet can hold more than one SGT, so keep every mint: if one has already claimed, another may not have. It skips token accounts with a zero balance, which a wallet keeps after transferring its SGT out.
 
 ```ts
-import { getSeekerGenesisTokens } from "@solana-mobile/skr-genesis-token";
-import { address, createSolanaRpc } from "@solana/kit";
+import { getSeekerGenesisTokens } from '@solana-mobile/skr-genesis-token'
+import { address, createSolanaRpc } from '@solana/kit'
 
-const rpc = createSolanaRpc(process.env.RPC_URL); // any mainnet RPC endpoint
+const rpc = createSolanaRpc(process.env.RPC_URL) // any mainnet RPC endpoint
 
 // Returns the mint address of every SGT the wallet currently holds, or [].
 async function getWalletSGTMints(walletAddress: string) {
-  const tokens = await getSeekerGenesisTokens(rpc, address(walletAddress));
-  return tokens.map((token) => token.mint);
+  const tokens = await getSeekerGenesisTokens(rpc, address(walletAddress))
+  return tokens.map((token) => token.mint)
 }
 ```
 

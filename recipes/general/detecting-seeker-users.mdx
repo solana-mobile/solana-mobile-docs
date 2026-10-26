@@ -1,9 +1,9 @@
 ---
-title: "Detecting Seeker Users"
-description: "Identify Seeker users in your app, from a lightweight device check to onchain ownership verification."
+title: 'Detecting Seeker Users'
+description: 'Identify Seeker users in your app, from a lightweight device check to onchain ownership verification.'
 ---
 
-import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+import { FooterDisclaimer } from '/snippets/footer-disclaimer.mdx'
 
 ## Overview
 
@@ -29,9 +29,9 @@ For use cases where you need a guarantee that you are interacting with a Seeker 
 ### Checking Platform Constants
 
 ```tsx
-import { Platform } from "react-native";
+import { Platform } from 'react-native'
 
-console.log(JSON.stringify(Platform.constants, null, 2));
+console.log(JSON.stringify(Platform.constants, null, 2))
 ```
 
 When running on a Seeker device, the above code outputs something like:
@@ -61,8 +61,8 @@ To check if the user is on a Seeker, you can check the `Model` constant:
 
 ```ts
 const isSeekerDevice = (): boolean => {
-  return Platform.constants.Model === "Seeker";
-};
+  return Platform.constants.Model === 'Seeker'
+}
 ```
 
 ### Use Cases
@@ -108,27 +108,27 @@ Generate the SIWS payload on your backend so you control the `nonce`, `issuedAt`
 
 ```tsx expandable
 // This happens on your backend server
-import crypto from "crypto";
+import crypto from 'crypto'
 
 async function createSignInPayload() {
-  const nonce = crypto.randomBytes(16).toString("hex");
-  const issuedAt = new Date();
-  const expirationTime = new Date(issuedAt.getTime() + 10 * 60 * 1000); // 10 minutes
+  const nonce = crypto.randomBytes(16).toString('hex')
+  const issuedAt = new Date()
+  const expirationTime = new Date(issuedAt.getTime() + 10 * 60 * 1000) // 10 minutes
 
   const signInPayload = {
-    domain: "yourdapp.com",
-    statement: "Sign in to verify Seeker ownership",
-    uri: "https://yourdapp.com",
+    domain: 'yourdapp.com',
+    statement: 'Sign in to verify Seeker ownership',
+    uri: 'https://yourdapp.com',
     nonce,
     issuedAt: issuedAt.toISOString(),
     expirationTime: expirationTime.toISOString(),
-  };
+  }
 
   // Store the issued payload, keyed by nonce, so verification can later
   // load it from your own store instead of trusting a client-supplied copy.
-  await storeSignInPayload(nonce, signInPayload, expirationTime);
+  await storeSignInPayload(nonce, signInPayload, expirationTime)
 
-  return signInPayload;
+  return signInPayload
 }
 ```
 
@@ -137,32 +137,32 @@ async function createSignInPayload() {
 Fetch the payload from your backend, then use Mobile Wallet Adapter to request the user to sign it:
 
 ```tsx expandable
-import { transact } from "@solana-mobile/mobile-wallet-adapter-protocol-kit";
+import { transact } from '@solana-mobile/mobile-wallet-adapter-protocol-kit'
 
 const APP_IDENTITY = {
-  name: "Your dApp",
-  uri: "https://yourdapp.com",
-  icon: "favicon.ico",
-};
+  name: 'Your dApp',
+  uri: 'https://yourdapp.com',
+  icon: 'favicon.ico',
+}
 
 async function signSIWSPayload() {
   // Request a fresh sign-in payload from your backend
-  const response = await fetch("https://yourdapp.com/api/siws-payload");
-  const signInPayload = await response.json();
+  const response = await fetch('https://yourdapp.com/api/siws-payload')
+  const signInPayload = await response.json()
 
   const signInResult = await transact(async (wallet) => {
     const authorizationResult = await wallet.authorize({
-      chain: "solana:mainnet",
+      chain: 'solana:mainnet',
       identity: APP_IDENTITY,
       sign_in_payload: signInPayload,
-    });
+    })
 
-    return authorizationResult.sign_in_result;
-  });
+    return authorizationResult.sign_in_result
+  })
 
   // Send this back to your backend for verification, along with the
   // payload's nonce so the backend can look up the payload it issued
-  return { nonce: signInPayload.nonce, signInResult };
+  return { nonce: signInPayload.nonce, signInResult }
 }
 ```
 
@@ -185,10 +185,10 @@ On success, `verifySIWS` returns the verified wallet address:
 
 ```tsx expandable
 // This happens on your backend server
-import { verifySignIn } from "@solana/wallet-standard-util";
-import { getAddressDecoder } from "@solana/kit";
+import { verifySignIn } from '@solana/wallet-standard-util'
+import { getAddressDecoder } from '@solana/kit'
 
-const EXPECTED_DOMAIN = "yourdapp.com";
+const EXPECTED_DOMAIN = 'yourdapp.com'
 
 async function verifySIWS(nonce, signInResult): Promise<string | null> {
   // A wallet that doesn't support SIWS omits `sign_in_result`, so validate
@@ -198,47 +198,47 @@ async function verifySIWS(nonce, signInResult): Promise<string | null> {
     !signInResult.signature ||
     !signInResult.signed_message
   ) {
-    return null;
+    return null
   }
 
   // 1. Load the payload you issued for this nonce. consumeSignInPayload
   // should atomically mark the nonce as used and return null if the nonce
   // is unknown, expired, or already used.
-  const signInPayload = await consumeSignInPayload(nonce);
+  const signInPayload = await consumeSignInPayload(nonce)
   if (!signInPayload) {
-    return null;
+    return null
   }
 
   // The MWA `sign_in_result` contains base64-encoded `address`,
   // `signed_message`, and `signature` fields. Convert it into the
   // SolanaSignInOutput shape that `verifySignIn` expects.
-  const publicKey = new Uint8Array(Buffer.from(signInResult.address, "base64"));
+  const publicKey = new Uint8Array(Buffer.from(signInResult.address, 'base64'))
   if (publicKey.length !== 32) {
-    return null;
+    return null
   }
-  const walletAddress = getAddressDecoder().decode(publicKey);
+  const walletAddress = getAddressDecoder().decode(publicKey)
   const serialisedOutput = {
     account: {
       address: walletAddress,
       publicKey,
     },
-    signature: new Uint8Array(Buffer.from(signInResult.signature, "base64")),
+    signature: new Uint8Array(Buffer.from(signInResult.signature, 'base64')),
     signedMessage: new Uint8Array(
-      Buffer.from(signInResult.signed_message, "base64"),
+      Buffer.from(signInResult.signed_message, 'base64'),
     ),
-  };
+  }
 
   // 2. Verify the signature against the issued payload
   if (!verifySignIn(signInPayload, serialisedOutput)) {
-    return null;
+    return null
   }
 
   // 3. The payload must be bound to your domain
   if (signInPayload.domain !== EXPECTED_DOMAIN) {
-    return null;
+    return null
   }
 
-  return walletAddress;
+  return walletAddress
 }
 ```
 
@@ -256,15 +256,15 @@ npm install @solana-mobile/skr-genesis-token @solana/kit
 
 ```ts
 // This happens on your backend server
-import { getSeekerGenesisTokens } from "@solana-mobile/skr-genesis-token";
-import { address, createSolanaRpc } from "@solana/kit";
+import { getSeekerGenesisTokens } from '@solana-mobile/skr-genesis-token'
+import { address, createSolanaRpc } from '@solana/kit'
 
-const rpc = createSolanaRpc(process.env.RPC_URL); // any mainnet RPC endpoint
+const rpc = createSolanaRpc(process.env.RPC_URL) // any mainnet RPC endpoint
 
 // Returns the mint address of every SGT the wallet currently holds, or [].
 async function getWalletSGTMints(walletAddress: string) {
-  const tokens = await getSeekerGenesisTokens(rpc, address(walletAddress));
-  return tokens.map((token) => token.mint);
+  const tokens = await getSeekerGenesisTokens(rpc, address(walletAddress))
+  return tokens.map((token) => token.mint)
 }
 ```
 
@@ -278,20 +278,20 @@ On your backend server, combine the SIWS verification and SGT ownership check to
 // On your backend server
 async function verifySeekerUser(nonce, signInResult) {
   // Verify nonce, signature, and domain, and get the verified wallet address
-  const walletAddress = await verifySIWS(nonce, signInResult);
+  const walletAddress = await verifySIWS(nonce, signInResult)
   if (!walletAddress) {
-    return null;
+    return null
   }
 
   // Pick a held SGT whose mint has not claimed yet. Record that mint
   // when the claim succeeds to enforce uniqueness across transfers.
-  const mints = await getWalletSGTMints(walletAddress);
+  const mints = await getWalletSGTMints(walletAddress)
   for (const mint of mints) {
     if (!(await hasMintClaimed(mint))) {
-      return mint;
+      return mint
     }
   }
-  return null;
+  return null
 }
 ```
 

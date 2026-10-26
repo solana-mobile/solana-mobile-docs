@@ -1,10 +1,10 @@
 ---
-title: "Setup"
-description: "Set up MobileWalletProvider and the useMobileWallet hook in your app."
-sidebarTitle: "Setup"
+title: 'Setup'
+description: 'Set up MobileWalletProvider and the useMobileWallet hook in your app.'
+sidebarTitle: 'Setup'
 ---
 
-import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+import { FooterDisclaimer } from '/snippets/footer-disclaimer.mdx'
 
 ## MobileWalletProvider
 
@@ -17,21 +17,21 @@ Wrap your app's root component with `MobileWalletProvider`. This provider manage
 import {
   createSolanaDevnet,
   MobileWalletProvider,
-} from "@wallet-ui/react-native-kit";
+} from '@wallet-ui/react-native-kit'
 
-const cluster = createSolanaDevnet({ url: "https://api.devnet.solana.com" });
+const cluster = createSolanaDevnet({ url: 'https://api.devnet.solana.com' })
 const identity = {
-  name: "My Solana App",
-  uri: "https://mysolanaapp.com",
-  icon: "favicon.png",
-};
+  name: 'My Solana App',
+  uri: 'https://mysolanaapp.com',
+  icon: 'favicon.png',
+}
 
 export default function App() {
   return (
     <MobileWalletProvider cluster={cluster} identity={identity}>
       {/* Your app content */}
     </MobileWalletProvider>
-  );
+  )
 }
 ```
 
@@ -59,23 +59,23 @@ export default function App() {
 <Tab title="@solana/web3.js">
 
 ```tsx App.tsx
-import { MobileWalletProvider } from "@wallet-ui/react-native-web3js";
-import { clusterApiUrl } from "@solana/web3.js";
+import { MobileWalletProvider } from '@wallet-ui/react-native-web3js'
+import { clusterApiUrl } from '@solana/web3.js'
 
-const chain = "solana:devnet";
-const endpoint = clusterApiUrl("devnet");
+const chain = 'solana:devnet'
+const endpoint = clusterApiUrl('devnet')
 const identity = {
-  name: "My Solana App",
-  uri: "https://mysolanaapp.com",
-  icon: "favicon.png",
-};
+  name: 'My Solana App',
+  uri: 'https://mysolanaapp.com',
+  icon: 'favicon.png',
+}
 
 export default function App() {
   return (
     <MobileWalletProvider chain={chain} endpoint={endpoint} identity={identity}>
       {/* Your app content */}
     </MobileWalletProvider>
-  );
+  )
 }
 ```
 

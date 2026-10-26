@@ -1,5 +1,5 @@
 const disclaimerImport =
-  'import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";';
+  "import { FooterDisclaimer } from '/snippets/footer-disclaimer.mdx'";
 const disclaimerInvocation = "<FooterDisclaimer />";
 const excludedDirectories = [".git/", ".scripts/", "node_modules/"];
 const excludedPages = new Set(["index.mdx"]);

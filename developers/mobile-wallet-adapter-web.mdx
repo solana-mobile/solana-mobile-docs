@@ -1,9 +1,9 @@
 ---
-title: "Mobile Wallet Adapter on Web Browsers"
-description: "The Solana Mobile Stack was designed to be compatible on the mobile web. This document will explain how to ensure a mobile web app can be integrated with Solana Mobile libraries."
+title: 'Mobile Wallet Adapter on Web Browsers'
+description: 'The Solana Mobile Stack was designed to be compatible on the mobile web. This document will explain how to ensure a mobile web app can be integrated with Solana Mobile libraries.'
 ---
 
-import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+import { FooterDisclaimer } from '/snippets/footer-disclaimer.mdx'
 
 ## Android Web
 
@@ -37,14 +37,14 @@ If left to default, the user will see an _"Unknown app_" label displayed and a m
 new SolanaMobileWalletAdapter({
   addressSelector: createDefaultAddressSelector(),
   appIdentity: {
-    name: "My app",
-    uri: "https://myapp.io",
-    icon: "relative/path/to/icon.png", // resolves to https://myapp.io/relative/path/to/icon.png
+    name: 'My app',
+    uri: 'https://myapp.io',
+    icon: 'relative/path/to/icon.png', // resolves to https://myapp.io/relative/path/to/icon.png
   },
   authorizationResultCache: createDefaultAuthorizationResultCache(),
   cluster: WalletAdapterNetwork.Devnet,
   onWalletNotFound: createDefaultWalletNotFoundHandler(),
-});
+})
 ```
 
 Developers who use `@solana/wallet-adapter-react@">=0.15.21"` can supply this custom instance to `WalletProvider` which will use it to override the default one.

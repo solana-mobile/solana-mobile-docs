@@ -1,10 +1,10 @@
 ---
-title: "Installing Mobile Wallet Standard"
-description: "Use the **Mobile Wallet Standard** library to register Mobile Wallet Adapter as a wallet option into your web application."
-sidebarTitle: "Installation"
+title: 'Installing Mobile Wallet Standard'
+description: 'Use the **Mobile Wallet Standard** library to register Mobile Wallet Adapter as a wallet option into your web application.'
+sidebarTitle: 'Installation'
 ---
 
-import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+import { FooterDisclaimer } from '/snippets/footer-disclaimer.mdx'
 
 ## Installation
 
@@ -30,16 +30,16 @@ In the root of your web application, invoke the `registerMwa` function.
 ```typescript
 // 'use client' - If using Next.js, ensure it is registered in a non-SSR context.
 
-import { registerMwa } from "@solana-mobile/wallet-standard-mobile";
+import { registerMwa } from '@solana-mobile/wallet-standard-mobile'
 
 registerMwa({
   appIdentity: {
-    name: "My app",
-    uri: "https://myapp.io",
-    icon: "relative/path/to/icon.png", // resolves to https://myapp.io/relative/path/to/icon.png
+    name: 'My app',
+    uri: 'https://myapp.io',
+    icon: 'relative/path/to/icon.png', // resolves to https://myapp.io/relative/path/to/icon.png
   },
-  chains: ["solana:devnet", "solana:mainnet"],
-});
+  chains: ['solana:devnet', 'solana:mainnet'],
+})
 ```
 
 Once registered, MWA will appear as a wallet option for users browsing on Android Chrome. The connection is handled locally via Android Intents (same as native Android apps).
