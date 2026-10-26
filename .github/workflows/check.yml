@@ -19,6 +19,8 @@ jobs:
         uses: ./.github/actions/setup
       - name: Check formatting
         run: bun run format:check
+      - name: Lint
+        run: bun run lint
       - name: Check footer disclaimers
         run: bun run check:footer
       - name: Check onchain spelling

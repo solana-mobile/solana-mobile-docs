@@ -1,10 +1,10 @@
 ---
-title: "Wallet Signing on iOS"
-description: "Why Mobile Wallet Adapter is unavailable on iOS, and which alternatives to use for wallet signing and key custody."
-sidebarTitle: "Wallet Signing on iOS"
+title: 'Wallet Signing on iOS'
+description: 'Why Mobile Wallet Adapter is unavailable on iOS, and which alternatives to use for wallet signing and key custody.'
+sidebarTitle: 'Wallet Signing on iOS'
 ---
 
-import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+import { FooterDisclaimer } from '/snippets/footer-disclaimer.mdx'
 
 ## Overview
 
@@ -55,12 +55,12 @@ link request/response API would be more convoluted than this, as covered in
 ```ts
 /** Signing a single transaction */
 // Round trip 1
-const { walletAddress, authToken } = deeplinkWalletToConnect();
+const { walletAddress, authToken } = deeplinkWalletToConnect()
 
 if (walletAddress) {
-  const tx = buildTx(walletAddress);
+  const tx = buildTx(walletAddress)
   // Round trip 2
-  const signedTransaction = deeplinkWalletToSign(tx, authToken);
+  const signedTransaction = deeplinkWalletToSign(tx, authToken)
 }
 ```
 
@@ -72,17 +72,17 @@ separated again:
 ```ts
 /** Signing dependent transactions */
 // Round trip 1
-const { walletAddress, authToken } = deeplinkWalletToConnect();
+const { walletAddress, authToken } = deeplinkWalletToConnect()
 
 if (walletAddress) {
-  const tx1 = buildTx(walletAddress);
+  const tx1 = buildTx(walletAddress)
   // Round trip 2
-  const signedTx1 = deeplinkWalletToSign(tx1, authToken);
+  const signedTx1 = deeplinkWalletToSign(tx1, authToken)
 
   // tx2 depends on the outcome of tx1
-  const tx2 = buildTx(walletAddress, signedTx1);
+  const tx2 = buildTx(walletAddress, signedTx1)
   // Round trip 3
-  const signedTx2 = deeplinkWalletToSign(tx2, authToken);
+  const signedTx2 = deeplinkWalletToSign(tx2, authToken)
 }
 ```
 

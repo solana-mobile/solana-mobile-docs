@@ -1,11 +1,11 @@
 ---
-title: "Use Anchor Programs in React Native"
-description: "Connect an Anchor program to a mobile app using a generated client, starting from the expo-kit-anchor template."
-sidebarTitle: "React Native"
+title: 'Use Anchor Programs in React Native'
+description: 'Connect an Anchor program to a mobile app using a generated client, starting from the expo-kit-anchor template.'
+sidebarTitle: 'React Native'
 ---
 
-import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
-import { Button } from "/snippets/button.mdx";
+import { FooterDisclaimer } from '/snippets/footer-disclaimer.mdx'
+import { Button } from '/snippets/button.mdx'
 
 <Button href="https://github.com/solana-mobile/templates/tree/main/mobile/expo-kit-anchor">
   expo-kit-anchor template
@@ -121,21 +121,21 @@ Because the address is derived, the app can always find a wallet's counter witho
 
 ```js
 export default {
-  idl: "target/idl/hello_world.json",
+  idl: 'target/idl/hello_world.json',
   scripts: {
     js: {
-      from: "@codama/renderers-js",
+      from: '@codama/renderers-js',
       args: [
-        "anchor/src/client/js",
+        'anchor/src/client/js',
         {
-          generatedFolder: "generated",
-          kitImportStrategy: "rootOnly",
+          generatedFolder: 'generated',
+          kitImportStrategy: 'rootOnly',
           syncPackageJson: false,
         },
       ],
     },
   },
-};
+}
 ```
 
 Regenerate with:
@@ -158,30 +158,30 @@ The generated code is re-exported from `anchor/src/index.ts`, and `tsconfig.json
 
 ```ts
 // src/features/counter/data-access/use-counter-query.ts
-import { fetchMaybeCounter, findCounterPda } from "@project/anchor";
-import { useQuery } from "@tanstack/react-query";
-import { useMobileWallet } from "@wallet-ui/react-native-kit";
+import { fetchMaybeCounter, findCounterPda } from '@project/anchor'
+import { useQuery } from '@tanstack/react-query'
+import { useMobileWallet } from '@wallet-ui/react-native-kit'
 
 export function useCounterQuery() {
-  const { account, chain, client } = useMobileWallet();
+  const { account, chain, client } = useMobileWallet()
 
   return useQuery({
     enabled: !!account,
-    queryKey: ["counter", chain, account?.address],
+    queryKey: ['counter', chain, account?.address],
     queryFn: async () => {
       if (!account) {
-        return null;
+        return null
       }
       const [counterAddress] = await findCounterPda({
         authority: account.address,
-      });
-      const counter = await fetchMaybeCounter(client.rpc, counterAddress);
+      })
+      const counter = await fetchMaybeCounter(client.rpc, counterAddress)
       return {
         address: counterAddress,
         count: counter.exists ? counter.data.count : null,
-      };
+      }
     },
-  });
+  })
 }
 ```
 
@@ -196,10 +196,10 @@ Instruction builders are generated too — `getInitializeInstructionAsync` and `
 const {
   context: { slot: minContextSlot },
   value: latestBlockhash,
-} = await client.rpc.getLatestBlockhash().send();
+} = await client.rpc.getLatestBlockhash().send()
 
-const signer = getTransactionSigner(account.address, minContextSlot);
-const instruction = await createInstruction(signer);
+const signer = getTransactionSigner(account.address, minContextSlot)
+const instruction = await createInstruction(signer)
 
 const message = pipe(
   createTransactionMessage({ version: 0 }),
@@ -207,10 +207,10 @@ const message = pipe(
   (message) =>
     setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, message),
   (message) => appendTransactionMessageInstruction(instruction, message),
-);
-assertIsTransactionMessageWithSingleSendingSigner(message);
+)
+assertIsTransactionMessageWithSingleSendingSigner(message)
 
-const signatureBytes = await signAndSendTransactionMessageWithSigners(message);
+const signatureBytes = await signAndSendTransactionMessageWithSigners(message)
 ```
 
 <Warning>
@@ -235,7 +235,7 @@ return {
       sendInstruction((payer) => getInitializeInstructionAsync({ payer })),
     onSettled,
   }),
-};
+}
 ```
 
 Because the wallet submits the transaction rather than the app, the hook polls for confirmation afterwards and invalidates the counter query on settle — including on failure, since the wallet may have submitted after the app stopped waiting.

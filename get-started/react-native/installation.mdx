@@ -1,12 +1,12 @@
 ---
-title: "Installation"
-description: "Install Wallet UI to integrate Mobile Wallet Adapter into your app."
-sidebarTitle: "Installation"
+title: 'Installation'
+description: 'Install Wallet UI to integrate Mobile Wallet Adapter into your app.'
+sidebarTitle: 'Installation'
 ---
 
-import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+import { FooterDisclaimer } from '/snippets/footer-disclaimer.mdx'
 
-import { Button } from "/snippets/button.mdx";
+import { Button } from '/snippets/button.mdx'
 
 ## Prerequisites
 
@@ -112,15 +112,15 @@ Solana client libraries expect Node and browser APIs that React Native does not 
 **1. Create a `polyfill.js` file in your project root:**
 
 ```javascript polyfill.js
-import { install } from "react-native-quick-crypto";
-install();
+import { install } from 'react-native-quick-crypto'
+install()
 ```
 
 **2. Create an `index.js` entry point that imports the polyfill first:**
 
 ```javascript index.js
-import "./polyfill";
-import "expo-router/entry"; // If using Expo Router
+import './polyfill'
+import 'expo-router/entry' // If using Expo Router
 ```
 
 **3. Update `package.json` to use the new entry point:**

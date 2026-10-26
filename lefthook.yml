@@ -1,12 +1,18 @@
 pre-commit:
   commands:
     format:
-      glob: "*.{css,json,jsonc,md,mdx,yaml,yml}"
-      run: bun run prettier --write {staged_files}
+      glob: '*.{css,js,json,jsonc,md,mdx,ts,yaml,yml}'
+      run: bun run oxfmt --no-error-on-unmatched-pattern {staged_files}
       stage_fixed: true
+    lint:
+      glob: '*.{js,ts}'
+      run: bun run oxlint --deny-warnings {staged_files}
 
 pre-push:
   commands:
     format:
-      glob: "*.{css,json,jsonc,md,mdx,yaml,yml}"
-      run: bun run prettier --check {push_files}
+      glob: '*.{css,js,json,jsonc,md,mdx,ts,yaml,yml}'
+      run: bun run oxfmt --check --no-error-on-unmatched-pattern {push_files}
+    lint:
+      glob: '*.{js,ts}'
+      run: bun run oxlint --deny-warnings {push_files}

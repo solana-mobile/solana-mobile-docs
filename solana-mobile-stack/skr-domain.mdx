@@ -1,10 +1,10 @@
 ---
-title: ".skr Domain"
-sidebarTitle: ".skr Domain"
-description: "A human-readable .skr domain that maps to a Solana wallet address."
+title: '.skr Domain'
+sidebarTitle: '.skr Domain'
+description: 'A human-readable .skr domain that maps to a Solana wallet address.'
 ---
 
-import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+import { FooterDisclaimer } from '/snippets/footer-disclaimer.mdx'
 
 Every [Seeker](/solana-mobile-stack/seeker) owner receives a `.skr` domain — a human-readable name that maps to their Solana wallet address. Like the [Seeker Genesis Token](/solana-mobile-stack/seeker-genesis-token), a `.skr` domain is only minted once per device and can be transferred between a user's own wallet accounts within the [Seed Vault Wallet](/solana-mobile-stack/seed-vault).
 
@@ -28,21 +28,21 @@ import {
   getPrimarySkrDomain,
   getSkrDomains,
   resolveSkrDomain,
-} from "@solana-mobile/skr-domain";
-import { address, createSolanaRpc } from "@solana/kit";
+} from '@solana-mobile/skr-domain'
+import { address, createSolanaRpc } from '@solana/kit'
 
-const rpc = createSolanaRpc(process.env.RPC_URL); // any mainnet RPC endpoint
+const rpc = createSolanaRpc(process.env.RPC_URL) // any mainnet RPC endpoint
 
 // Forward: name to wallet address, or null if not registered or expired
-const domain = await resolveSkrDomain(rpc, "alice.skr");
-console.log(domain?.owner);
+const domain = await resolveSkrDomain(rpc, 'alice.skr')
+console.log(domain?.owner)
 
 // Reverse: the wallet's primary name, then any name it owns, then a short address
-const wallet = address(walletAddress);
+const wallet = address(walletAddress)
 const label =
   (await getPrimarySkrDomain(rpc, wallet)) ??
   (await getSkrDomains(rpc, wallet))[0] ??
-  `${wallet.slice(0, 4)}…${wallet.slice(-4)}`;
+  `${wallet.slice(0, 4)}…${wallet.slice(-4)}`
 ```
 
 The primary name is the one the user chose. Anyone can send a `.skr` name to any wallet, so a name from `getSkrDomains` is not proof of identity — show it alongside the address. `getSkrDomains` uses `getProgramAccounts`, which many RPC providers rate-limit or disable, so call it from your backend.

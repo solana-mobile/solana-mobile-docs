@@ -1,11 +1,11 @@
 ---
-title: "MWA Typescript Reference (Legacy)"
-description: "Connect to wallet apps and sign transactions and messages with the Mobile Wallet Adapter API."
+title: 'MWA Typescript Reference (Legacy)'
+description: 'Connect to wallet apps and sign transactions and messages with the Mobile Wallet Adapter API.'
 ---
 
-import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+import { FooterDisclaimer } from '/snippets/footer-disclaimer.mdx'
 
-import { Button } from "/snippets/button.mdx";
+import { Button } from '/snippets/button.mdx'
 
 <Button href="#mobile-wallet-api-methods">API Reference</Button>
 
@@ -53,7 +53,7 @@ bun add \
 import {
   transact,
   Web3MobileWallet,
-} from "@solana-mobile/mobile-wallet-adapter-protocol-web3js";
+} from '@solana-mobile/mobile-wallet-adapter-protocol-web3js'
 ```
 
 ## Mobile Wallet API Methods
@@ -96,14 +96,14 @@ The result will be a `Promise<TReturn>` with `TReturn` equal to what is returned
 
 ```tsx
 const result = await transact(async (wallet: Web3MobileWallet) => {
-  /* ...Issue MWA requests... */ return "done";
-});
+  /* ...Issue MWA requests... */ return 'done'
+})
 ```
 
 ### Return:
 
 ```tsx
-console.log(result); // "done"
+console.log(result) // "done"
 ```
 
 ## Web3MobileWallet.authorize
@@ -186,7 +186,7 @@ const result = await transact(async (wallet: Web3MobileWallet) => {
 });
 ```
 
-### Result:[​](/reference/typescript#result-1 "Direct link to Result:")
+### Result:[​](/reference/typescript#result-1 'Direct link to Result:')
 
 ```json
 {
@@ -232,10 +232,10 @@ The result will be an empty JSON object.
 ### Code sample:
 
 ```tsx
-const authToken = getPreviouslyStoredAuthToken();
+const authToken = getPreviouslyStoredAuthToken()
 const result = await transact(async (wallet: Web3MobileWallet) => {
-  return await wallet.deauthorize({ auth_token: authToken });
-});
+  return await wallet.deauthorize({ auth_token: authToken })
+})
 ```
 
 ### Result:
@@ -265,11 +265,11 @@ The result will be a JSON object as defined in `authorize`, but the values may b
 
 ```tsx
 const result = await transact(async (wallet: Web3MobileWallet) => {
-  return await wallet.getCapabilities();
-});
+  return await wallet.getCapabilities()
+})
 ```
 
-### Result:[​](/reference/typescript/#result-1 "Direct link to Result:")
+### Result:[​](/reference/typescript/#result-1 'Direct link to Result:')
 
 ```json
 {

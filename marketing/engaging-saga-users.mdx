@@ -1,8 +1,8 @@
 ---
-title: "Engaging with Saga Users"
+title: 'Engaging with Saga Users'
 ---
 
-import { FooterDisclaimer } from "/snippets/footer-disclaimer.mdx";
+import { FooterDisclaimer } from '/snippets/footer-disclaimer.mdx'
 
 ## Introduction
 
@@ -61,37 +61,37 @@ Given the user's wallet address you can use the _searchAssets_ DAS API method to
 <Tab title="Javascript">
 
 ```javascript expandable
-const url = `https://your.rpc.com/?api-key=<api_key>`;
+const url = `https://your.rpc.com/?api-key=<api_key>`
 
 const searchAssets = async () => {
   const response = await fetch(url, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: "my-id",
-      method: "searchAssets",
+      jsonrpc: '2.0',
+      id: 'my-id',
+      method: 'searchAssets',
       params: {
-        ownerAddress: "<user-wallet-address>", // user's wallet address
+        ownerAddress: '<user-wallet-address>', // user's wallet address
         grouping: [
-          "collection",
-          "46pcSL5gmjBrPqGKFaLbbCmR6iVuLJbnQy13hAe7s6CC", // Genesis Token Collection NFT Address
+          'collection',
+          '46pcSL5gmjBrPqGKFaLbbCmR6iVuLJbnQy13hAe7s6CC', // Genesis Token Collection NFT Address
         ],
         page: 1, // Starts at 1
         limit: 1000,
       },
     }),
-  });
-  const { result } = await response.json();
+  })
+  const { result } = await response.json()
   if (result?.total === 1) {
-    console.log("Wallet contains a Saga Genesis Token!");
+    console.log('Wallet contains a Saga Genesis Token!')
   } else {
-    console.log("Wallet does not contain a Saga Genesis Token.");
+    console.log('Wallet does not contain a Saga Genesis Token.')
   }
-};
-searchAssets();
+}
+searchAssets()
 ```
 
 </Tab>
@@ -110,48 +110,48 @@ the paginated response is a list of Saga Genesis Token Assets and metadata.
 <Tab title="Javascript">
 
 ```javascript expandable
-const fs = require("fs");
-const DAS_API_URL = "https://your.rpc.com/?api-key=<api-key>";
-const OUTPUT_FILE = `out.json`;
+const fs = require('fs')
+const DAS_API_URL = 'https://your.rpc.com/?api-key=<api-key>'
+const OUTPUT_FILE = `out.json`
 
 const getAssetsByGroup = async () => {
-  let output = [];
-  let page = 0;
+  let output = []
+  let page = 0
 
   while (true) {
-    page++;
+    page++
     const response = await fetch(DAS_API_URL, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: "my-id",
-        method: "getAssetsByGroup",
+        jsonrpc: '2.0',
+        id: 'my-id',
+        method: 'getAssetsByGroup',
         params: {
-          groupKey: "collection",
-          groupValue: "46pcSL5gmjBrPqGKFaLbbCmR6iVuLJbnQy13hAe7s6CC", // Genesis Token Collection NFT Address
+          groupKey: 'collection',
+          groupValue: '46pcSL5gmjBrPqGKFaLbbCmR6iVuLJbnQy13hAe7s6CC', // Genesis Token Collection NFT Address
           page: page, // Starts at 1
           limit: 1000,
         },
       }),
-    });
-    const { result } = await response.json();
-    console.log(`Page ${page} of Saga Genesis Token Assets`);
+    })
+    const { result } = await response.json()
+    console.log(`Page ${page} of Saga Genesis Token Assets`)
     if (result.total === 0) {
-      console.log("Done!");
-      break;
+      console.log('Done!')
+      break
     }
     for (const item of result.items) {
-      output.push({ owner: item.ownership.owner });
+      output.push({ owner: item.ownership.owner })
     }
   }
 
-  console.log(`Writing to ${OUTPUT_FILE}`);
-  fs.writeFileSync(OUTPUT_FILE, JSON.stringify(output, null, 2));
-};
-getAssetsByGroup();
+  console.log(`Writing to ${OUTPUT_FILE}`)
+  fs.writeFileSync(OUTPUT_FILE, JSON.stringify(output, null, 2))
+}
+getAssetsByGroup()
 ```
 
 </Tab>
